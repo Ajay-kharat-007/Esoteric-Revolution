@@ -1,0 +1,357 @@
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import type { Prisma } from '../../generated/prisma/client';
+import { PrismaService } from '../../database/prisma.service';
+import type {
+  CreateCampaignDto,
+  CreateContentReportDto,
+  CreateNotificationDto,
+  CreateSupportCaseDto,
+  ResolveContentReportDto,
+  UpdateSupportCaseDto,
+} from './operations.dto';
+
+@Injectable()
+export class OperationsService {
+  constructor(private readonly db: PrismaService) {}
+  users(query?: string) {
+    return this.db.user.findMany({
+      where: query
+        ? {
+            OR: [
+              { email: { contains: query, mode: 'insensitive' } },
+              { phone: { contains: query } },
+              { profile: { displayName: { contains: query, mode: 'insensitive' } } },
+            ],
+          }
+        : {},
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        status: true,
+        createdAt: true,
+        profile: { select: { displayName: true, language: true } },
+        roles: { select: { role: { select: { code: true } } } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+  }
+  async user(id: string) {
+    const user = await this.db.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        status: true,
+        emailVerifiedAt: true,
+        phoneVerifiedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        profile: true,
+        roles: { select: { role: { select: { code: true, name: true } } } },
+        _count: { select: { orders: true, entitlements: true, supportCases: true } },
+      },
+    });
+    if (!user) throw new NotFoundException('User not found');
+    return user;
+  }
+  private async status(actorId: string, id: string, status: 'BLOCKED' | 'ACTIVE', reason: string) {
+    if (actorId === id) throw new BadRequestException('Cannot change your own account status');
+    return this.db.$transaction(async (tx) => {
+      const user = await tx.user.update({
+        where: { id },
+        data: { status, tokenVersion: { increment: 1 } },
+        select: { id: true, status: true, updatedAt: true },
+      });
+      await tx.authSession.updateMany({
+        where: { userId: id, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+      await tx.auditEvent.create({
+        data: {
+          actorId,
+          action: status === 'BLOCKED' ? 'USER_BLOCKED' : 'USER_UNBLOCKED',
+          resourceType: 'user',
+          resourceId: id,
+          reason,
+        },
+      });
+      return user;
+    });
+  }
+  block(actorId: string, id: string, reason: string) {
+    return this.status(actorId, id, 'BLOCKED', reason);
+  }
+  unblock(actorId: string, id: string, reason: string) {
+    return this.status(actorId, id, 'ACTIVE', reason);
+  }
+  createCase(userId: string, d: CreateSupportCaseDto) {
+    return this.db.supportCase.create({ data: { requesterId: userId, ...d } });
+  }
+  myCases(userId: string) {
+    return this.db.supportCase.findMany({
+      where: { requesterId: userId },
+      select: {
+        id: true,
+        subject: true,
+        message: true,
+        status: true,
+        resolution: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 100,
+    });
+  }
+  cases(status?: 'OPEN' | 'ASSIGNED' | 'RESOLVED' | 'CLOSED') {
+    return this.db.supportCase.findMany({
+      where: { status },
+      include: {
+        requester: {
+          select: { id: true, email: true, profile: { select: { displayName: true } } },
+        },
+        assignee: { select: { id: true, email: true } },
+      },
+      orderBy: { updatedAt: 'desc' },
+    });
+  }
+  async updateCase(actorId: string, id: string, d: UpdateSupportCaseDto) {
+    const existing = await this.db.supportCase.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) throw new NotFoundException('Support case not found');
+    const row = await this.db.supportCase.update({
+      where: { id },
+      data: { ...d, status: d.assigneeId && !d.status ? 'ASSIGNED' : d.status },
+    });
+    await this.db.auditEvent.create({
+      data: {
+        actorId,
+        action: 'SUPPORT_CASE_UPDATED',
+        resourceType: 'support_case',
+        resourceId: id,
+        metadata: { status: row.status },
+      },
+    });
+    return row;
+  }
+  async report(userId: string, d: CreateContentReportDto) {
+    if ((!d.workId && !d.lessonId) || (d.workId && d.lessonId))
+      throw new BadRequestException('Provide exactly one of workId or lessonId');
+    if (d.workId && !(await this.db.work.findUnique({ where: { id: d.workId } })))
+      throw new NotFoundException('Work not found');
+    if (d.lessonId && !(await this.db.lesson.findUnique({ where: { id: d.lessonId } })))
+      throw new NotFoundException('Lesson not found');
+    return this.db.contentReport.create({ data: { reporterId: userId, ...d } });
+  }
+  reports(status?: 'OPEN' | 'RESOLVED' | 'DISMISSED') {
+    return this.db.contentReport.findMany({
+      where: { status },
+      include: {
+        reporter: { select: { id: true, email: true } },
+        work: { select: { id: true, slug: true } },
+        lesson: { select: { id: true, slug: true, title: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+  async resolveReport(actorId: string, id: string, d: ResolveContentReportDto) {
+    const existing = await this.db.contentReport.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!existing) throw new NotFoundException('Content report not found');
+    return this.db.$transaction(async (tx) => {
+      const row = await tx.contentReport.update({
+        where: { id },
+        data: { ...d, resolvedAt: new Date() },
+      });
+      await tx.auditEvent.create({
+        data: {
+          actorId,
+          action: 'CONTENT_REPORT_RESOLVED',
+          resourceType: 'content_report',
+          resourceId: id,
+          reason: d.resolution,
+          metadata: { status: d.status, correctionId: d.correctionId },
+        },
+      });
+      return row;
+    });
+  }
+  notifications() {
+    return this.db.notification.findMany({ orderBy: { createdAt: 'desc' }, take: 100 });
+  }
+  async memberNotifications(userId: string, roles: string[]) {
+    const rows = await this.db.notification.findMany({
+      where: { status: 'SENT', OR: [{ sentAt: null }, { sentAt: { lte: new Date() } }] },
+      orderBy: [{ sentAt: 'desc' }, { createdAt: 'desc' }],
+      take: 100,
+      include: {
+        userStates: {
+          where: { userId },
+          select: { readAt: true, deletedAt: true },
+        },
+      },
+    });
+    return rows
+      .filter((row) => !row.userStates[0]?.deletedAt)
+      .filter((row) => {
+        const audience = row.audience as Record<string, unknown>;
+        const users = Array.isArray(audience['userIds']) ? audience['userIds'] : [];
+        const targetRoles = Array.isArray(audience['roles']) ? audience['roles'] : [];
+        return (
+          audience['all'] === true ||
+          users.includes(userId) ||
+          targetRoles.some((role) => typeof role === 'string' && roles.includes(role))
+        );
+      })
+      .map((row) => {
+        const audience = row.audience as Record<string, unknown>;
+        const deepLink =
+          typeof audience['deepLink'] === 'string' && audience['deepLink'].startsWith('/')
+            ? audience['deepLink']
+            : undefined;
+        const type = typeof audience['type'] === 'string' ? audience['type'] : 'ARCHIVE';
+        return {
+          id: row.id,
+          title: row.title,
+          body: row.body,
+          type,
+          channel: 'IN_APP',
+          deepLink,
+          sentAt: row.sentAt ?? row.createdAt,
+          readAt: row.userStates[0]?.readAt ?? null,
+        };
+      });
+  }
+  createNotification(actorId: string, d: CreateNotificationDto) {
+    const when = d.scheduledAt ? new Date(d.scheduledAt) : new Date();
+    return this.db.$transaction(async (tx) => {
+      const row = await tx.notification.create({
+        data: {
+          createdById: actorId,
+          title: d.title,
+          body: d.body,
+          audience: d.audience as Prisma.InputJsonValue,
+          status: 'QUEUED',
+          scheduledAt: when,
+        },
+      });
+      await tx.outboxEvent.create({
+        data: {
+          topic: 'notification.dispatch',
+          aggregateType: 'notification',
+          aggregateId: row.id,
+          availableAt: when,
+          payload: { notificationId: row.id },
+        },
+      });
+      return row;
+    });
+  }
+  campaigns() {
+    return this.db.campaign.findMany({ orderBy: { createdAt: 'desc' }, take: 100 });
+  }
+  createCampaign(actorId: string, d: CreateCampaignDto) {
+    const when = d.scheduledAt ? new Date(d.scheduledAt) : new Date();
+    return this.db.$transaction(async (tx) => {
+      const row = await tx.campaign.create({
+        data: {
+          createdById: actorId,
+          name: d.name,
+          channel: d.channel,
+          audience: d.audience as Prisma.InputJsonValue,
+          content: d.content as Prisma.InputJsonValue,
+          status: 'QUEUED',
+          scheduledAt: when,
+        },
+      });
+      await tx.outboxEvent.create({
+        data: {
+          topic: 'campaign.dispatch',
+          aggregateType: 'campaign',
+          aggregateId: row.id,
+          availableAt: when,
+          payload: { campaignId: row.id, channel: row.channel },
+        },
+      });
+      return row;
+    });
+  }
+  async claimReferral(userId: string, rawCode: string) {
+    const code = rawCode.trim().toUpperCase();
+    try {
+      return await this.db.$transaction(async (tx) => {
+        const referral = await tx.referral.findUnique({ where: { code } });
+        if (!referral) throw new NotFoundException('Referral code not found');
+        if (referral.claimedById) throw new ConflictException('Referral code already claimed');
+        if (referral.ownerId === userId)
+          throw new BadRequestException('Cannot claim your own referral code');
+        const claimed = await tx.referral.update({
+          where: { id: referral.id },
+          data: { claimedById: userId, claimedAt: new Date() },
+        });
+        await tx.outboxEvent.create({
+          data: {
+            topic: 'referral.claimed',
+            aggregateType: 'referral',
+            aggregateId: claimed.id,
+            payload: { referralId: claimed.id, claimedById: userId },
+          },
+        });
+        return claimed;
+      });
+    } catch (error) {
+      if (
+        error instanceof NotFoundException ||
+        error instanceof ConflictException ||
+        error instanceof BadRequestException
+      )
+        throw error;
+      throw new ConflictException('User already claimed a referral');
+    }
+  }
+  async referralStatus(userId: string) {
+    const [claimed, owned] = await this.db.$transaction([
+      this.db.referral.findUnique({
+        where: { claimedById: userId },
+        select: { id: true, code: true, claimedAt: true },
+      }),
+      this.db.referral.findMany({
+        where: { ownerId: userId },
+        select: { id: true, code: true, claimedAt: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ]);
+    return {
+      eligible: !claimed,
+      claimed,
+      owned,
+      benefitConfigured: false,
+    };
+  }
+  async dashboard(roles: string[]) {
+    const allowed = (role: string) => roles.includes('admin') || roles.includes(role);
+    const [works, support, reports, products, users] = await Promise.all([
+      allowed('writer') || allowed('publisher')
+        ? this.db.work.count({ where: { status: { not: 'PUBLISHED' } } })
+        : null,
+      allowed('support')
+        ? this.db.supportCase.count({ where: { status: { in: ['OPEN', 'ASSIGNED'] } } })
+        : null,
+      allowed('reviewer') || allowed('moderator')
+        ? this.db.contentReport.count({ where: { status: 'OPEN' } })
+        : null,
+      allowed('finance') ? this.db.product.count({ where: { status: 'ACTIVE' } }) : null,
+      allowed('admin') ? this.db.user.count({ where: { status: 'ACTIVE' } }) : null,
+    ]);
+    return { generatedAt: new Date(), roles, queues: { works, support, reports, products, users } };
+  }
+}

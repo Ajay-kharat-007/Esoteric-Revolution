@@ -1,0 +1,117 @@
+.lesson-page {
+  padding-block: 2rem 6rem;
+}
+.back {
+  color: var(--els-color-rust);
+  font-weight: 700;
+  text-decoration: none;
+}
+header {
+  margin: 1.5rem 0;
+}
+header h1 {
+  margin: 0.25rem 0;
+  font-size: clamp(2.5rem, 5vw, 4rem);
+}
+header > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  color: var(--els-color-ink-muted);
+  font-size: 0.78rem;
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22rem;
+  gap: 1rem;
+}
+.card {
+  padding: 1.5rem;
+  border: 1px solid var(--els-color-border-subtle);
+  border-radius: var(--els-radius-md);
+  background: var(--els-color-paper-light);
+}
+.card + .card {
+  margin-top: 1rem;
+}
+h2 {
+  margin: 0.2rem 0 1rem;
+}
+label {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+input,
+textarea {
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.75rem;
+  border: 1px solid var(--els-color-border);
+  border-radius: var(--els-radius-sm);
+  background: #fffdf9;
+  font: inherit;
+}
+.code,
+pre {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.78rem;
+}
+button {
+  min-height: 2.7rem;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--els-color-rust);
+  border-radius: var(--els-radius-sm);
+  background: var(--els-color-rust);
+  color: white;
+  font-weight: 700;
+}
+button:disabled {
+  opacity: 0.55;
+}
+.alert {
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  background: var(--els-color-error-surface);
+  color: var(--els-color-error);
+}
+ol {
+  list-style: none;
+  padding: 0;
+}
+li {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--els-color-border-subtle);
+}
+li > div {
+  display: flex;
+  justify-content: space-between;
+}
+li time,
+li > span {
+  display: block;
+  color: var(--els-color-ink-muted);
+  font-size: 0.72rem;
+}
+summary {
+  margin-top: 0.5rem;
+  cursor: pointer;
+  color: var(--els-color-rust);
+}
+pre {
+  overflow: auto;
+  max-height: 15rem;
+  padding: 0.75rem;
+  background: var(--els-color-paper-soft);
+}
+.skeleton {
+  height: 40rem;
+  background: var(--els-color-paper-soft);
+}
+@media (max-width: 58rem) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,50 @@
+:host {
+  display: block;
+}
+main {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: var(--els-color-paper);
+}
+section {
+  max-width: 38rem;
+  text-align: center;
+}
+.code {
+  color: var(--els-color-rust);
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+h1 {
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
+}
+section > p:not(.code) {
+  color: var(--els-color-ink-soft);
+  font-size: 1.1rem;
+}
+div {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+button,
+a {
+  min-height: 2.75rem;
+  padding: 0.65rem 1rem;
+  border-radius: var(--els-radius-sm);
+  font-weight: 700;
+}
+button {
+  border: 0;
+  background: var(--els-color-rust);
+  color: var(--els-color-paper-light);
+}
+a {
+  border: 1px solid var(--els-color-border);
+  color: var(--els-color-ink);
+  text-decoration: none;
+}

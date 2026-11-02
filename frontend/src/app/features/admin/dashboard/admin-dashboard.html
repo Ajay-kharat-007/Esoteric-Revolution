@@ -1,0 +1,174 @@
+<section class="dashboard els-container" aria-labelledby="dashboard-title">
+  <header class="page-header">
+    <div>
+      <p class="els-overline">Administration overview</p>
+      <h1 id="dashboard-title">Dashboard</h1>
+      <p>Operational priorities and platform health, gathered from live backend services.</p>
+    </div>
+    <button type="button" (click)="load()" [disabled]="loading()">
+      <span aria-hidden="true">↻</span> Refresh
+    </button>
+  </header>
+  @if (loading()) {
+    <div class="metrics" aria-label="Loading dashboard">
+      @for (item of [1, 2, 3, 4]; track item) {
+        <div class="skeleton metric-skeleton"></div>
+      }
+    </div>
+    <div class="skeleton panel-skeleton"></div>
+  } @else if (error()) {
+    <section class="state-panel" role="alert">
+      <span class="state-icon" aria-hidden="true">!</span>
+      <h2>Dashboard unavailable</h2>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="load()">Try again</button>
+    </section>
+  } @else if (data(); as dashboard) {
+    <div class="status-strip" [class.degraded]="dashboard.health.status !== 'ready'">
+      <div>
+        <span class="health-dot"></span
+        ><strong>{{
+          dashboard.health.status === 'ready'
+            ? 'All required services are ready'
+            : 'Service attention required'
+        }}</strong>
+      </div>
+      <span
+        >Database {{ dashboard.health.checks.database ? 'ready' : 'unavailable' }} · Redis
+        {{ dashboard.health.checks.redis ? 'ready' : 'unavailable' }}</span
+      ><time [attr.datetime]="dashboard.overview.generatedAt"
+        >Updated {{ timestamp(dashboard.overview.generatedAt) }}</time
+      >
+    </div>
+    <div class="metrics">
+      <article>
+        <span class="metric-icon" aria-hidden="true">♧</span>
+        <div>
+          <p>Active learners & admins</p>
+          <strong>{{ dashboard.overview.activeUsers }}</strong
+          ><small>{{ dashboard.overview.users }} total accounts</small>
+        </div>
+      </article>
+      <article>
+        <span class="metric-icon" aria-hidden="true">◫</span>
+        <div>
+          <p>Published works</p>
+          <strong>{{ dashboard.overview.publishedWorks }}</strong
+          ><small>{{ dashboard.queues.queues.works }} awaiting publication</small>
+        </div>
+      </article>
+      <article>
+        <span class="metric-icon" aria-hidden="true">◇</span>
+        <div>
+          <p>Paid orders</p>
+          <strong>{{ dashboard.overview.paidOrders }}</strong
+          ><small>{{ dashboard.overview.activeEntitlements }} active entitlements</small>
+        </div>
+      </article>
+      <article>
+        <span class="metric-icon" aria-hidden="true">!</span>
+        <div>
+          <p>Open service items</p>
+          <strong>{{ dashboard.overview.openSupportCases + dashboard.overview.openReports }}</strong
+          ><small
+            >{{ dashboard.overview.openSupportCases }} support ·
+            {{ dashboard.overview.openReports }} reports</small
+          >
+        </div>
+      </article>
+    </div>
+    <div class="dashboard-grid">
+      <section class="panel queues">
+        <div class="panel-heading">
+          <div>
+            <p class="els-overline">Operational queues</p>
+            <h2>Needs attention</h2>
+          </div>
+          <span>{{ dashboard.queues.roles.join(', ') }}</span>
+        </div>
+        <div class="queue-list">
+          <div>
+            <span class="queue-mark rust">◫</span>
+            <div>
+              <strong>Works not published</strong
+              ><small>Draft, review, approved or scheduled works</small>
+            </div>
+            <b>{{ dashboard.queues.queues.works }}</b>
+          </div>
+          <div>
+            <span class="queue-mark gold">?</span>
+            <div>
+              <strong>Support cases</strong><small>Open and assigned learner requests</small>
+            </div>
+            <b>{{ dashboard.queues.queues.support }}</b>
+          </div>
+          <div>
+            <span class="queue-mark oxblood">!</span>
+            <div><strong>Content reports</strong><small>Open reports requiring review</small></div>
+            <b>{{ dashboard.queues.queues.reports }}</b>
+          </div>
+          <div>
+            <span class="queue-mark sage">□</span>
+            <div>
+              <strong>Active products</strong><small>Commerce catalogue currently available</small>
+            </div>
+            <b>{{ dashboard.queues.queues.products }}</b>
+          </div>
+          <div>
+            <span class="queue-mark ink">♧</span>
+            <div><strong>Active accounts</strong><small>Administrators and learners</small></div>
+            <b>{{ dashboard.queues.queues.users }}</b>
+          </div>
+        </div>
+      </section>
+      <section class="panel activity">
+        <div class="panel-heading">
+          <div>
+            <p class="els-overline">Traceable operations</p>
+            <h2>Recent activity</h2>
+          </div>
+        </div>
+        @if (dashboard.activity.length) {
+          <ol>
+            @for (item of dashboard.activity; track item.id) {
+              <li>
+                <span class="activity-mark" aria-hidden="true">✦</span>
+                <div>
+                  <strong>{{ activityTitle(item) }}</strong>
+                  <p>{{ actor(item) }} · {{ label(item.resourceType) }}</p>
+                  <time [attr.datetime]="item.createdAt">{{ timestamp(item.createdAt) }}</time>
+                </div>
+              </li>
+            }
+          </ol>
+        } @else {
+          <div class="empty">
+            <span aria-hidden="true">◇</span>
+            <h3>No recorded activity yet</h3>
+            <p>Audited Admin actions will appear here.</p>
+          </div>
+        }
+      </section>
+    </div>
+    <section class="foundation-panel">
+      <div>
+        <p class="els-overline">Library foundation</p>
+        <h2>Platform at a glance</h2>
+      </div>
+      <div class="foundation-values">
+        <div>
+          <strong>{{ dashboard.overview.activeEntitlements }}</strong
+          ><span>Active entitlements</span>
+        </div>
+        <div>
+          <strong>{{ dashboard.overview.paidOrders }}</strong
+          ><span>Paid orders</span>
+        </div>
+        <div>
+          <strong>{{ dashboard.overview.publishedWorks }}</strong
+          ><span>Published works</span>
+        </div>
+      </div>
+    </section>
+  }
+</section>

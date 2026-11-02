@@ -1,0 +1,1152 @@
+
+================================================================================
+FILE: src\app\features\admin\content\work-workspace\admin-work-workspace.html
+================================================================================
+<section class="workspace-page els-container" aria-labelledby="work-title">
+  <a class="back" routerLink="/admin/content/works">← Back to Works</a>
+  @if (loading()) {
+    <div class="skeleton hero"></div>
+    <div class="skeleton body"></div>
+  } @else if (error()) {
+    <section class="state" role="alert">
+      <h1>Work unavailable</h1>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="load()">Try again</button>
+    </section>
+  } @else if (work(); as item) {
+    <header class="hero-card">
+      <div>
+        <p class="els-overline">Work workspace</p>
+        <div class="title-row">
+          <h1 id="work-title">{{ title() }}</h1>
+          <span class="status">{{ label(item.status) }}</span>
+        </div>
+        <p>{{ latest()?.summary || 'No editorial summary has been added yet.' }}</p>
+        <div class="meta">
+          <span>{{ item.versions.length }} versions</span
+          ><span>{{ item.modules.length }} modules</span><span>{{ lessonCount() }} lessons</span
+          ><span>Updated {{ date(item.updatedAt) }}</span>
+        </div>
+      </div>
+      <div class="seal" aria-hidden="true">{{ title().charAt(0) }}</div>
+    </header>
+    <nav class="tabs" aria-label="Work sections">
+      <button
+        type="button"
+        [class.active]="activeTab() === 'overview'"
+        (click)="selectTab('overview')"
+      >
+        Overview
+      </button>
+      <button
+        type="button"
+        [class.active]="activeTab() === 'curriculum'"
+        (click)="selectTab('curriculum')"
+      >
+        Curriculum
+      </button>
+      <button type="button" disabled>Versions <small>A4.6</small></button
+      ><button type="button" disabled>Media <small>A4.7</small></button
+      ><button type="button" disabled>Sources & Claims</button
+      ><button type="button" disabled>Rights</button
+      ><button type="button" disabled>Publishing <small>A4.8</small></button>
+    </nav>
+
+    @if (activeTab() === 'overview') {
+      <div class="grid">
+        <main>
+          <form [formGroup]="form" (ngSubmit)="save()">
+            <section class="card">
+              <header>
+                <div>
+                  <p class="els-overline">Identity</p>
+                  <h2>Core metadata</h2>
+                </div>
+              </header>
+              @if (saveError()) {
+                <div class="alert">{{ saveError() }}</div>
+              }
+              @if (saved()) {
+                <div class="success">Changes saved successfully.</div>
+              }
+              <label for="slug">URL slug</label>
+              <div class="slug">
+                <span>/library/</span><input id="slug" formControlName="slug" />
+              </div>
+            </section>
+            <section class="card">
+              <header>
+                <div>
+                  <p class="els-overline">Introduction media</p>
+                  <h2>YouTube video</h2>
+                </div>
+              </header>
+              <label for="video-url">YouTube URL</label
+              ><input id="video-url" formControlName="introductionVideoUrl" /><label
+                for="video-title"
+                >Accessible title</label
+              ><input id="video-title" formControlName="introductionVideoTitle" /><label
+                for="caption"
+                >Caption information</label
+              ><textarea
+                id="caption"
+                formControlName="introductionVideoCaptionInfo"
+                rows="4"
+              ></textarea>
+            </section>
+            <div class="actions">
+              <span>{{ form.dirty ? 'Unsaved changes' : 'All changes saved' }}</span
+              ><button type="submit" [disabled]="saving() || !form.dirty">
+                {{ saving() ? 'Saving…' : 'Save metadata' }}
+              </button>
+            </div>
+          </form>
+        </main>
+        <aside>
+          <section class="card">
+            <p class="els-overline">Editorial snapshot</p>
+            <h2>Latest version</h2>
+            <h3>{{ latest()?.title || 'No version' }}</h3>
+            <p>{{ latest()?.summary || 'Version editing arrives in A4.6.' }}</p>
+          </section>
+          <section class="card">
+            <p class="els-overline">Publication</p>
+            <h2>{{ label(item.status) }}</h2>
+            <p>Published: {{ date(item.publishedAt) }}</p>
+          </section>
+        </aside>
+      </div>
+    } @else if (activeTab() === 'curriculum') {
+      <section class="curriculum">
+        <header class="curriculum-header">
+          <div>
+            <p class="els-overline">Learning structure</p>
+            <h2>Curriculum builder</h2>
+            <p>
+              Organize modules and lesson identities. Lesson content and versions arrive in A4.6.
+            </p>
+          </div>
+          <button class="primary" type="button" (click)="openAddModule()">＋ Add module</button>
+        </header>
+        @if (mutationError()) {
+          <div class="alert" role="alert">{{ mutationError() }}</div>
+        }
+        @if (addingModule() || editingModuleId()) {
+          <form class="inline-form" [formGroup]="moduleForm" (ngSubmit)="submitModule()">
+            <h3>{{ editingModuleId() ? 'Edit module' : 'Add module' }}</h3>
+            <div class="form-grid">
+              <label>Title<input formControlName="title" /></label
+              ><label>Position<input type="number" min="1" formControlName="position" /></label
+              ><label class="full"
+                >Summary<textarea rows="3" formControlName="summary"></textarea>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="secondary" (click)="cancelModuleForm()">Cancel</button
+              ><button type="submit" class="primary" [disabled]="mutating()">
+                {{ mutating() ? 'Saving…' : 'Save module' }}
+              </button>
+            </div>
+          </form>
+        }
+        @if (item.modules.length) {
+          <div class="module-list">
+            @for (module of item.modules; track module.id; let moduleIndex = $index) {
+              <article class="module">
+                <header>
+                  <div class="module-number">{{ moduleIndex + 1 }}</div>
+                  <div>
+                    <p>Module {{ module.position }}</p>
+                    <h3>{{ module.title }}</h3>
+                    <small>{{ module.summary || 'No module summary.' }}</small>
+                  </div>
+                  <div class="module-actions">
+                    <button type="button" class="secondary" (click)="openEditModule(module)">
+                      Edit</button
+                    ><button type="button" class="primary" (click)="openAddLesson(module)">
+                      ＋ Lesson
+                    </button>
+                  </div>
+                </header>
+                @if (addingLessonTo() === module.id) {
+                  <form
+                    class="inline-form lesson-form"
+                    [formGroup]="lessonForm"
+                    (ngSubmit)="submitLesson()"
+                  >
+                    <h4>Add lesson</h4>
+                    <div class="form-grid">
+                      <label>Title<input formControlName="title" /></label
+                      ><label>Slug<input formControlName="slug" /></label
+                      ><label
+                        >Position<input type="number" min="1" formControlName="position" /></label
+                      ><label class="full"
+                        >Summary<textarea rows="3" formControlName="summary"></textarea>
+                      </label>
+                    </div>
+                    <div class="form-actions">
+                      <button type="button" class="secondary" (click)="cancelLesson()">
+                        Cancel</button
+                      ><button type="submit" class="primary" [disabled]="mutating()">
+                        {{ mutating() ? 'Creating…' : 'Create lesson' }}
+                      </button>
+                    </div>
+                  </form>
+                }
+                @if (module.lessons.length) {
+                  <ol>
+                    @for (lesson of module.lessons; track lesson.id; let lessonIndex = $index) {
+                      <li>
+                        <span>{{ moduleIndex + 1 }}.{{ lessonIndex + 1 }}</span>
+                        <div>
+                          <strong>{{ lesson.title }}</strong
+                          ><code>{{ lesson.slug }}</code
+                          ><small>{{ lesson.summary || 'No lesson summary.' }}</small>
+                        </div>
+                        <div>
+                          <b>{{ lesson.versions.length }}</b
+                          ><small>versions</small>
+                        </div>
+                        <button type="button" disabled title="Lesson editor arrives in A4.6">
+                          ›
+                        </button>
+                      </li>
+                    }
+                  </ol>
+                } @else {
+                  <div class="module-empty">
+                    No lessons yet. Add the first lesson to this module.
+                  </div>
+                }
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="curriculum-empty">
+            <span aria-hidden="true">⌁</span>
+            <h3>No curriculum yet</h3>
+            <p>Add the first module, then organize lessons inside it.</p>
+            <button type="button" class="primary" (click)="openAddModule()">
+              Create first module
+            </button>
+          </div>
+        }
+      </section>
+    } @else if (activeTab() === 'versions') {
+      <section class="curriculum">
+        <header class="curriculum-header">
+          <div>
+            <p class="els-overline">Editorial history</p>
+            <h2>Work versions</h2>
+            <p>Create immutable editorial versions. Publishing selection arrives in A4.8.</p>
+          </div>
+        </header>
+        @if (mutationError()) {
+          <div class="alert">{{ mutationError() }}</div>
+        }
+        <form class="inline-form" [formGroup]="workVersionForm" (ngSubmit)="createWorkVersion()">
+          <h3>Create new Work version</h3>
+          <div class="form-grid">
+            <label>Title<input formControlName="title" /></label
+            ><label>Subtitle<input formControlName="subtitle" /></label
+            ><label class="full"
+              >Summary<textarea rows="3" formControlName="summary"></textarea></label
+            ><label class="full"
+              >Description<textarea rows="4" formControlName="description"></textarea></label
+            ><label class="full"
+              >Content JSON<textarea rows="7" formControlName="contentJson"></textarea></label
+            ><label class="full"
+              >Preview JSON<textarea rows="5" formControlName="previewJson"></textarea>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="primary" type="submit" [disabled]="creatingWorkVersion()">
+              {{ creatingWorkVersion() ? 'Creating…' : 'Create version' }}
+            </button>
+          </div>
+        </form>
+        <div class="module-list">
+          @for (version of item.versions; track version.id) {
+            <article class="module">
+              <header>
+                <div class="module-number">{{ version.version }}</div>
+                <div>
+                  <p>Version {{ version.version }}</p>
+                  <h3>{{ version.title }}</h3>
+                  <small>{{ version.summary }}</small>
+                </div>
+                <div>{{ date(version.createdAt) }}</div>
+              </header>
+            </article>
+          }
+        </div>
+      </section>
+    }
+  }
+</section>
+
+
+================================================================================
+FILE: src\app\features\admin\content\work-workspace\admin-work-workspace.ts
+================================================================================
+import {
+  ChangeDetectionStrategy,
+  Component,
+  HostListener,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
+import { BackendApiError } from '../../../../core/interceptors/api-error.interceptor';
+import { WorkContext, WorkModule } from './admin-work-workspace.models';
+import { AdminWorkWorkspaceService } from './admin-work-workspace.service';
+
+type WorkspaceTab =
+  'overview' | 'curriculum' | 'versions' | 'media' | 'sources' | 'rights' | 'publishing';
+
+@Component({
+  selector: 'els-admin-work-workspace',
+  imports: [ReactiveFormsModule, RouterLink],
+  templateUrl: './admin-work-workspace.html',
+  styleUrl: './admin-work-workspace.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class AdminWorkWorkspace {
+  private readonly route = inject(ActivatedRoute);
+  private readonly fb = inject(FormBuilder);
+  private readonly service = inject(AdminWorkWorkspaceService);
+
+  readonly loading = signal(true);
+  readonly saving = signal(false);
+  readonly mutating = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly saveError = signal<string | null>(null);
+  readonly mutationError = signal<string | null>(null);
+  readonly saved = signal(false);
+  readonly work = signal<WorkContext | null>(null);
+  readonly activeTab = signal<WorkspaceTab>('overview');
+  readonly addingModule = signal(false);
+  readonly editingModuleId = signal<string | null>(null);
+  readonly addingLessonTo = signal<string | null>(null);
+  readonly creatingWorkVersion = signal(false);
+  readonly latest = computed(() => this.work()?.versions[0] ?? null);
+  readonly lessonCount = computed(
+    () => this.work()?.modules.reduce((count, module) => count + module.lessons.length, 0) ?? 0,
+  );
+
+  readonly form = this.fb.nonNullable.group({
+    slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)]],
+    introductionVideoUrl: [''],
+    introductionVideoTitle: ['', Validators.maxLength(200)],
+    introductionVideoCaptionInfo: [''],
+  });
+
+  readonly workVersionForm = this.fb.nonNullable.group({
+    title: ['', Validators.required],
+    summary: ['', Validators.required],
+    subtitle: [''],
+    description: [''],
+    contentJson: ['{}'],
+    previewJson: ['{}'],
+  });
+
+  readonly moduleForm = this.fb.nonNullable.group({
+    title: ['', [Validators.required, Validators.maxLength(200)]],
+    summary: ['', Validators.maxLength(500)],
+    position: [1, [Validators.required, Validators.min(1)]],
+  });
+
+  readonly lessonForm = this.fb.nonNullable.group({
+    title: ['', [Validators.required, Validators.maxLength(200)]],
+    slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)]],
+    summary: ['', Validators.maxLength(500)],
+    position: [1, [Validators.required, Validators.min(1)]],
+  });
+
+  constructor() {
+    this.load();
+    this.lessonForm.controls.title.valueChanges.subscribe((title) => {
+      if (!this.lessonForm.controls.slug.dirty)
+        this.lessonForm.controls.slug.setValue(this.slugify(title), { emitEvent: false });
+    });
+  }
+
+  load(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) {
+      this.error.set('Work identifier is missing.');
+      this.loading.set(false);
+      return;
+    }
+    this.loading.set(true);
+    this.error.set(null);
+    this.service
+      .get(id)
+      .pipe(finalize(() => this.loading.set(false)))
+      .subscribe({
+        next: (work) => {
+          this.work.set({
+            ...work,
+            modules: [...work.modules]
+              .sort((a, b) => a.position - b.position)
+              .map((module) => ({
+                ...module,
+                lessons: [...module.lessons].sort((a, b) => a.position - b.position),
+              })),
+          });
+          this.form.reset({
+            slug: work.slug,
+            introductionVideoUrl: work.introductionVideoUrl ?? '',
+            introductionVideoTitle: work.introductionVideoTitle ?? '',
+            introductionVideoCaptionInfo: work.introductionVideoCaptionInfo ?? '',
+          });
+        },
+        error: (error: Partial<BackendApiError>) =>
+          this.error.set(
+            error.status === 404
+              ? 'This Work no longer exists.'
+              : error.correlationId
+                ? `Work could not be loaded. Reference: ${error.correlationId}`
+                : 'Work could not be loaded.',
+          ),
+      });
+  }
+
+  selectTab(tab: WorkspaceTab): void {
+    this.activeTab.set(tab);
+    this.mutationError.set(null);
+  }
+
+  save(): void {
+    const work = this.work();
+    this.saved.set(false);
+    this.saveError.set(null);
+    if (!work || this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+    const value = this.form.getRawValue();
+    this.saving.set(true);
+    this.form.disable();
+    this.service
+      .update(work.id, {
+        slug: value.slug.trim(),
+        introductionVideoUrl: value.introductionVideoUrl.trim(),
+        introductionVideoTitle: value.introductionVideoTitle.trim(),
+        introductionVideoCaptionInfo: value.introductionVideoCaptionInfo.trim(),
+      })
+      .pipe(
+        finalize(() => {
+          this.saving.set(false);
+          this.form.enable();
+        }),
+      )
+      .subscribe({
+        next: (updated) => {
+          this.work.update((current) => (current ? { ...current, ...updated } : updated));
+          this.form.markAsPristine();
+          this.saved.set(true);
+        },
+        error: (error: Partial<BackendApiError>) =>
+          this.saveError.set(this.apiMessage(error, 'Changes could not be saved.')),
+      });
+  }
+
+  openAddModule(): void {
+    const next = (this.work()?.modules.length ?? 0) + 1;
+    this.moduleForm.reset({ title: '', summary: '', position: next });
+    this.editingModuleId.set(null);
+    this.addingLessonTo.set(null);
+    this.addingModule.set(true);
+  }
+
+  openEditModule(module: WorkModule): void {
+    this.moduleForm.reset({
+      title: module.title,
+      summary: module.summary ?? '',
+      position: module.position,
+    });
+    this.addingModule.set(false);
+    this.addingLessonTo.set(null);
+    this.editingModuleId.set(module.id);
+  }
+
+  cancelModuleForm(): void {
+    this.addingModule.set(false);
+    this.editingModuleId.set(null);
+    this.moduleForm.reset();
+  }
+
+  submitModule(): void {
+    const work = this.work();
+    if (!work || this.moduleForm.invalid) {
+      this.moduleForm.markAllAsTouched();
+      return;
+    }
+    const value = this.moduleForm.getRawValue();
+    const payload = {
+      title: value.title.trim(),
+      summary: value.summary.trim(),
+      position: Number(value.position),
+    };
+    this.mutating.set(true);
+    this.mutationError.set(null);
+    const request = this.editingModuleId()
+      ? this.service.updateModule(this.editingModuleId()!, payload)
+      : this.service.createModule(work.id, payload);
+    request.pipe(finalize(() => this.mutating.set(false))).subscribe({
+      next: () => {
+        this.cancelModuleForm();
+        this.load();
+        this.activeTab.set('curriculum');
+      },
+      error: (error: Partial<BackendApiError>) =>
+        this.mutationError.set(this.apiMessage(error, 'The module could not be saved.')),
+    });
+  }
+
+  openAddLesson(module: WorkModule): void {
+    this.lessonForm.reset({
+      title: '',
+      slug: '',
+      summary: '',
+      position: module.lessons.length + 1,
+    });
+    this.lessonForm.markAsPristine();
+    this.addingModule.set(false);
+    this.editingModuleId.set(null);
+    this.addingLessonTo.set(module.id);
+  }
+
+  cancelLesson(): void {
+    this.addingLessonTo.set(null);
+    this.lessonForm.reset();
+  }
+
+  submitLesson(): void {
+    const moduleId = this.addingLessonTo();
+    if (!moduleId || this.lessonForm.invalid) {
+      this.lessonForm.markAllAsTouched();
+      return;
+    }
+    const value = this.lessonForm.getRawValue();
+    this.mutating.set(true);
+    this.mutationError.set(null);
+    this.service
+      .createLesson(moduleId, {
+        title: value.title.trim(),
+        slug: value.slug.trim(),
+        summary: value.summary.trim(),
+        position: Number(value.position),
+      })
+      .pipe(finalize(() => this.mutating.set(false)))
+      .subscribe({
+        next: () => {
+          this.cancelLesson();
+          this.load();
+          this.activeTab.set('curriculum');
+        },
+        error: (error: Partial<BackendApiError>) =>
+          this.mutationError.set(this.apiMessage(error, 'The lesson could not be created.')),
+      });
+  }
+
+  createWorkVersion(): void {
+    const work = this.work();
+    if (!work || this.workVersionForm.invalid) {
+      this.workVersionForm.markAllAsTouched();
+      return;
+    }
+    const value = this.workVersionForm.getRawValue();
+    let content: Record<string, unknown>;
+    let preview: Record<string, unknown>;
+    try {
+      content = JSON.parse(value.contentJson) as Record<string, unknown>;
+      preview = JSON.parse(value.previewJson) as Record<string, unknown>;
+    } catch {
+      this.mutationError.set('Content or preview JSON is invalid.');
+      return;
+    }
+    this.creatingWorkVersion.set(true);
+    this.mutationError.set(null);
+    this.service
+      .createWorkVersion(work.id, {
+        title: value.title.trim(),
+        summary: value.summary.trim(),
+        ...(value.subtitle.trim() ? { subtitle: value.subtitle.trim() } : {}),
+        ...(value.description.trim() ? { description: value.description.trim() } : {}),
+        content,
+        preview,
+      })
+      .pipe(finalize(() => this.creatingWorkVersion.set(false)))
+      .subscribe({
+        next: () => {
+          this.workVersionForm.reset({
+            title: '',
+            summary: '',
+            subtitle: '',
+            description: '',
+            contentJson: '{}',
+            previewJson: '{}',
+          });
+          this.load();
+          this.activeTab.set('versions');
+        },
+        error: (error: Partial<BackendApiError>) =>
+          this.mutationError.set(this.apiMessage(error, 'Work version could not be created.')),
+      });
+  }
+  @HostListener('window:beforeunload', ['$event']) protect(event: BeforeUnloadEvent): void {
+    if (
+      (this.form.dirty || this.moduleForm.dirty || this.lessonForm.dirty) &&
+      !this.saving() &&
+      !this.mutating()
+    )
+      event.preventDefault();
+  }
+  title(): string {
+    return (
+      this.latest()?.title ??
+      this.work()
+        ?.slug.replace(/-/g, ' ')
+        .replace(/\b\w/g, (character) => character.toUpperCase()) ??
+      'Work'
+    );
+  }
+  label(value: string): string {
+    return value
+      .replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/\b\w/g, (character) => character.toUpperCase());
+  }
+  date(value: string | null): string {
+    return value
+      ? new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(value))
+      : 'Not published';
+  }
+  private slugify(value: string): string {
+    return value
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 180);
+  }
+  private apiMessage(error: Partial<BackendApiError>, fallback: string): string {
+    const message = Array.isArray(error.message) ? error.message.join(' ') : error.message;
+    return (
+      message || (error.correlationId ? `${fallback} Reference: ${error.correlationId}` : fallback)
+    );
+  }
+}
+
+
+================================================================================
+FILE: src\app\features\admin\content\work-workspace\admin-work-workspace.service.ts
+================================================================================
+import { inject, Injectable } from '@angular/core';
+import { map, Observable } from 'rxjs';
+import { ApiClient } from '../../../../core/api/api-client';
+import { CreateWorkVersionRequest } from './admin-work-versions.models';
+import {
+  CreateLessonRequest,
+  CreateModuleRequest,
+  UpdateModuleRequest,
+} from './admin-curriculum.models';
+import {
+  UpdateWorkRequest,
+  WorkContext,
+  WorkLesson,
+  WorkModule,
+} from './admin-work-workspace.models';
+
+@Injectable({ providedIn: 'root' })
+export class AdminWorkWorkspaceService {
+  private readonly api = inject(ApiClient);
+
+  get(id: string): Observable<WorkContext> {
+    return this.api.get<WorkContext>(`/admin/works/${id}`).pipe(map((response) => response.data));
+  }
+
+  update(id: string, data: UpdateWorkRequest): Observable<WorkContext> {
+    return this.api
+      .patch<WorkContext, UpdateWorkRequest>(`/admin/works/${id}`, data)
+      .pipe(map((response) => response.data));
+  }
+
+  createModule(workId: string, data: CreateModuleRequest): Observable<WorkModule> {
+    return this.api
+      .post<WorkModule, CreateModuleRequest>(`/admin/works/${workId}/modules`, data)
+      .pipe(map((response) => response.data));
+  }
+
+  updateModule(moduleId: string, data: UpdateModuleRequest): Observable<WorkModule> {
+    return this.api
+      .patch<WorkModule, UpdateModuleRequest>(`/admin/modules/${moduleId}`, data)
+      .pipe(map((response) => response.data));
+  }
+
+  createLesson(moduleId: string, data: CreateLessonRequest): Observable<WorkLesson> {
+    return this.api
+      .post<WorkLesson, CreateLessonRequest>(`/admin/modules/${moduleId}/lessons`, data)
+      .pipe(map((response) => response.data));
+  }
+  createWorkVersion(workId: string, data: CreateWorkVersionRequest) {
+    return this.api
+      .post<any, CreateWorkVersionRequest>(`/admin/works/${workId}/versions`, data)
+      .pipe(map((response) => response.data));
+  }
+}
+
+
+================================================================================
+FILE: src\app\features\admin\content\work-workspace\admin-work-workspace.scss
+================================================================================
+.workspace-page {
+  padding-block: 2rem 6rem;
+}
+.back {
+  display: inline-block;
+  margin-bottom: 1.25rem;
+  color: var(--els-color-rust);
+  font-weight: 700;
+  text-decoration: none;
+}
+.hero-card {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid var(--els-color-border-subtle);
+  background: var(--els-color-paper-light);
+}
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.title-row h1 {
+  margin: 0.2rem 0;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+}
+.status {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--els-color-gold);
+  border-radius: 999px;
+  font-size: 0.72rem;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin-top: 1rem;
+  color: var(--els-color-ink-muted);
+  font-size: 0.78rem;
+}
+.seal {
+  display: grid;
+  place-items: center;
+  flex: 0 0 5rem;
+  height: 6.5rem;
+  background: var(--els-color-forest);
+  color: var(--els-color-gold-soft);
+  font-family: var(--els-font-display);
+  font-size: 2.2rem;
+}
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  padding: 0.7rem;
+  border: 1px solid var(--els-color-border-subtle);
+  border-top: 0;
+  background: var(--els-color-paper-soft);
+}
+.tabs button {
+  padding: 0.7rem 0.85rem;
+  border: 0;
+  background: transparent;
+  color: var(--els-color-ink-muted);
+  font: inherit;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+.tabs button.active {
+  background: var(--els-color-paper-light);
+  color: var(--els-color-rust);
+  font-weight: 700;
+}
+.tabs button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 21rem;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.card,
+.curriculum,
+.inline-form {
+  padding: 1.5rem;
+  border: 1px solid var(--els-color-border-subtle);
+  border-radius: var(--els-radius-md);
+  background: var(--els-color-paper-light);
+}
+.card + .card {
+  margin-top: 1rem;
+}
+.card header,
+.curriculum-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.2rem;
+  border-bottom: 1px solid var(--els-color-border-subtle);
+}
+h2 {
+  margin: 0.2rem 0;
+  font-size: 1.7rem;
+}
+label {
+  display: block;
+  margin: 0.9rem 0 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+input,
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--els-color-border);
+  border-radius: var(--els-radius-sm);
+  background: #fffdf9;
+  font: inherit;
+}
+.slug {
+  display: flex;
+  border: 1px solid var(--els-color-border);
+  border-radius: var(--els-radius-sm);
+  overflow: hidden;
+}
+.slug span {
+  padding: 0.75rem;
+  background: var(--els-color-paper-soft);
+}
+.slug input {
+  border: 0;
+}
+.actions,
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+}
+.actions {
+  position: sticky;
+  bottom: 0;
+  justify-content: space-between;
+  padding: 1rem;
+  margin-top: 1rem;
+  border: 1px solid var(--els-color-border-subtle);
+  background: #fffdf4;
+}
+.primary,
+.secondary,
+.state button {
+  min-height: 2.6rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--els-radius-sm);
+  font-weight: 700;
+}
+.primary {
+  border: 1px solid var(--els-color-rust);
+  background: var(--els-color-rust);
+  color: white;
+}
+.secondary {
+  border: 1px solid var(--els-color-border);
+  background: transparent;
+  color: var(--els-color-ink);
+}
+button:disabled {
+  opacity: 0.55;
+}
+.alert,
+.success {
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border-radius: var(--els-radius-sm);
+}
+.alert {
+  background: var(--els-color-error-surface);
+  color: var(--els-color-error);
+}
+.success {
+  background: rgb(85 109 85/0.12);
+  color: var(--els-color-success);
+}
+.curriculum {
+  margin-top: 1rem;
+}
+.curriculum-header p:last-child {
+  color: var(--els-color-ink-muted);
+}
+.inline-form {
+  margin-bottom: 1rem;
+  background: var(--els-color-paper-soft);
+}
+.inline-form h3,
+.inline-form h4 {
+  margin-top: 0;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 8rem;
+  gap: 0.75rem;
+}
+.form-grid label {
+  margin: 0;
+}
+.form-grid .full {
+  grid-column: 1/-1;
+}
+.module-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.module {
+  border: 1px solid var(--els-color-border-subtle);
+  border-radius: var(--els-radius-md);
+  overflow: hidden;
+}
+.module > header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem;
+  background: var(--els-color-paper-soft);
+}
+.module-number {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--els-color-gold);
+  border-radius: 50%;
+  font-family: var(--els-font-display);
+}
+.module header p,
+.module header h3 {
+  margin: 0;
+}
+.module header small {
+  color: var(--els-color-ink-muted);
+}
+.module-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.module ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.module li {
+  display: grid;
+  grid-template-columns: 3rem 1fr auto 2.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1.1rem;
+  border-top: 1px solid var(--els-color-border-subtle);
+}
+.module li code,
+.module li small {
+  display: block;
+  color: var(--els-color-ink-muted);
+  font-size: 0.7rem;
+}
+.module li > div:nth-child(3) {
+  text-align: center;
+}
+.module li button {
+  width: 2.3rem;
+  height: 2.3rem;
+  border: 1px solid var(--els-color-border);
+  border-radius: 50%;
+  background: transparent;
+}
+.lesson-form {
+  margin: 1rem;
+}
+.module-empty,
+.curriculum-empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--els-color-ink-muted);
+}
+.curriculum-empty {
+  padding: 4rem 1rem;
+}
+.curriculum-empty > span {
+  font-size: 2rem;
+  color: var(--els-color-gold);
+}
+.skeleton {
+  background: var(--els-color-paper-soft);
+}
+.skeleton.hero {
+  height: 14rem;
+}
+.skeleton.body {
+  height: 35rem;
+  margin-top: 1rem;
+}
+@media (max-width: 60rem) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .seal {
+    display: none;
+  }
+  .curriculum-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+@media (max-width: 42rem) {
+  .module > header {
+    grid-template-columns: auto 1fr;
+  }
+  .module-actions {
+    grid-column: 1/-1;
+  }
+  .module li {
+    grid-template-columns: 2rem 1fr auto;
+  }
+  .module li > button {
+    display: none;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-grid .full {
+    grid-column: auto;
+  }
+  .title-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+.lesson-open {
+  width: 2.3rem;
+  height: 2.3rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--els-color-border);
+  border-radius: 50%;
+  color: var(--els-color-ink);
+  text-decoration: none;
+}
+
+.lesson-open:hover {
+  border-color: var(--els-color-rust);
+  background: var(--els-color-rust-subtle);
+  color: var(--els-color-rust);
+}
+
+
+================================================================================
+FILE: src\app\app.routes.ts
+================================================================================
+import { Routes } from '@angular/router';
+import { adminGuard } from './core/guards/admin.guard';
+export const routes: Routes = [
+  { path: '', pathMatch: 'full', redirectTo: 'admin/login' },
+  {
+    path: 'admin/login',
+    title: 'Admin Sign In | The Esoteric Library',
+    loadComponent: () =>
+      import('./features/admin/auth/login/admin-login').then((m) => m.AdminLogin),
+  },
+  {
+    path: 'admin/forgot-password',
+    title: 'Admin Password Recovery | The Esoteric Library',
+    loadComponent: () =>
+      import('./features/admin/auth/forgot-password/admin-forgot-password').then(
+        (m) => m.AdminForgotPassword,
+      ),
+  },
+  {
+    path: 'admin/reset-password',
+    title: 'Reset Admin Password | The Esoteric Library',
+    loadComponent: () =>
+      import('./features/admin/auth/reset-password/admin-reset-password').then(
+        (m) => m.AdminResetPassword,
+      ),
+  },
+  {
+    path: 'admin/access-denied',
+    title: 'Access Denied | The Esoteric Library',
+    loadComponent: () =>
+      import('./features/admin/auth/access-denied/admin-access-denied').then(
+        (m) => m.AdminAccessDenied,
+      ),
+  },
+  {
+    path: 'admin',
+    canActivate: [adminGuard],
+    loadComponent: () => import('./layouts/admin-shell/admin-shell').then((m) => m.AdminShell),
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        title: 'Admin Dashboard | The Esoteric Library',
+        loadComponent: () =>
+          import('./features/admin/dashboard/admin-dashboard').then((m) => m.AdminDashboard),
+      },
+      {
+        path: 'content/works/new',
+        title: 'Create Work | The Esoteric Library',
+        loadComponent: () =>
+          import('./features/admin/content/create-work/admin-create-work').then(
+            (module) => module.AdminCreateWork,
+          ),
+      },
+      {
+        path: 'content/lessons/:id',
+        title: 'Lesson Editor | The Esoteric Library',
+        loadComponent: () =>
+          import('./features/admin/content/lesson-editor/admin-lesson-editor').then(
+            (module) => module.AdminLessonEditor,
+          ),
+      },
+      {
+        path: 'content/works/:id',
+        title: 'Work Workspace | The Esoteric Library',
+        loadComponent: () =>
+          import('./features/admin/content/work-workspace/admin-work-workspace').then(
+            (module) => module.AdminWorkWorkspace,
+          ),
+      },
+      {
+        path: 'content/works',
+        title: 'Works | The Esoteric Library',
+        loadComponent: () =>
+          import('./features/admin/content/works/admin-works').then((module) => module.AdminWorks),
+      },
+    ],
+  },
+  { path: '**', redirectTo: 'admin/login' },
+];
+

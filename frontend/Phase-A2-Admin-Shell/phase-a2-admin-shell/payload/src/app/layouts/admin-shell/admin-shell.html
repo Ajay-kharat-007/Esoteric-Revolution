@@ -1,0 +1,169 @@
+<a class="skip-link" href="#admin-content">Skip to main content</a>
+<div class="shell" [class.sidebar-collapsed]="collapsed()" [class.mobile-open]="mobileOpen()">
+  <div class="backdrop" aria-hidden="true" (click)="closeMobile()"></div>
+  <aside class="sidebar" aria-label="Administration navigation">
+    <div class="sidebar-brand">
+      <span class="brand-mark" aria-hidden="true">E</span>
+      <div class="brand-copy">
+        <strong>The Esoteric Library</strong><small>Administration</small>
+      </div>
+      <button
+        class="mobile-close"
+        type="button"
+        (click)="closeMobile()"
+        aria-label="Close navigation"
+      >
+        ×
+      </button>
+    </div>
+
+    <nav class="navigation">
+      @for (group of navigation; track group.label) {
+        <section class="nav-group">
+          @if (group.label) {
+            <p class="group-label">{{ group.label }}</p>
+          }
+          @for (item of group.items; track item.route) {
+            @if (item.enabled) {
+              <a
+                [routerLink]="item.route"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: true }"
+                [attr.title]="collapsed() ? item.label : null"
+              >
+                <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span
+                ><span class="nav-label">{{ item.label }}</span>
+              </a>
+            } @else {
+              <span
+                class="nav-disabled"
+                [attr.title]="item.label + ' — coming in a later phase'"
+                aria-disabled="true"
+              >
+                <span class="nav-icon" aria-hidden="true">{{ item.icon }}</span
+                ><span class="nav-label">{{ item.label }}</span
+                ><span class="soon">Soon</span>
+              </span>
+            }
+          }
+        </section>
+      }
+    </nav>
+
+    <div class="sidebar-footer">
+      <button
+        type="button"
+        (click)="toggleCollapsed()"
+        [attr.aria-label]="collapsed() ? 'Expand sidebar' : 'Collapse sidebar'"
+      >
+        <span aria-hidden="true">{{ collapsed() ? '›' : '‹' }}</span
+        ><span class="nav-label">Collapse</span>
+      </button>
+      <div class="version">
+        <span class="status-dot"></span><span class="nav-label">Local environment</span>
+      </div>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <header class="topbar">
+      <div class="topbar-start">
+        <button
+          class="menu-button"
+          type="button"
+          (click)="toggleMobile()"
+          aria-label="Open navigation"
+        >
+          ☰
+        </button>
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          @for (crumb of breadcrumbs(); track crumb.label; let last = $last) {
+            @if (crumb.route && !last) {
+              <a [routerLink]="crumb.route">{{ crumb.label }}</a
+              ><span aria-hidden="true">/</span>
+            } @else {
+              <span [attr.aria-current]="last ? 'page' : null">{{ crumb.label }}</span>
+            }
+          }
+        </nav>
+      </div>
+
+      <div class="topbar-actions">
+        <button
+          class="search-button"
+          type="button"
+          disabled
+          title="Global search arrives with indexed Admin modules"
+        >
+          <span aria-hidden="true">⌕</span><span>Search</span><kbd>⌘ K</kbd>
+        </button>
+        <div class="menu-wrap">
+          <button
+            class="quick-button"
+            type="button"
+            (click)="toggleCreate()"
+            [attr.aria-expanded]="createOpen()"
+          >
+            <span aria-hidden="true">＋</span><span>Quick create</span>
+          </button>
+          @if (createOpen()) {
+            <div class="popover quick-menu" role="menu">
+              <p>Quick create</p>
+              <button disabled role="menuitem">New Work <small>Coming in A4</small></button
+              ><button disabled role="menuitem">New Product <small>Coming in A8</small></button
+              ><button disabled role="menuitem">New Quiz <small>Coming in A7</small></button>
+            </div>
+          }
+        </div>
+        <button
+          class="icon-button status-button"
+          type="button"
+          title="Backend connection available"
+        >
+          <span class="status-dot"></span><span class="sr-wide">System available</span>
+        </button>
+        <button
+          class="icon-button"
+          type="button"
+          disabled
+          aria-label="Notifications — coming in Phase A11"
+        >
+          ◌
+        </button>
+        <div class="menu-wrap">
+          <button
+            class="profile-button"
+            type="button"
+            (click)="toggleProfile()"
+            [attr.aria-expanded]="profileOpen()"
+          >
+            <span class="avatar">{{ initials() }}</span
+            ><span class="profile-copy"
+              ><strong>{{ authState.user()?.displayName || 'Administrator' }}</strong
+              ><small>Admin</small></span
+            ><span aria-hidden="true">⌄</span>
+          </button>
+          @if (profileOpen()) {
+            <div class="popover profile-menu" role="menu">
+              <div>
+                <strong>{{ authState.user()?.displayName || 'Administrator' }}</strong
+                ><small>{{ authState.user()?.email }}</small>
+              </div>
+              <hr />
+              <button disabled role="menuitem">Admin profile <small>Coming in A13</small></button
+              ><button disabled role="menuitem">
+                Security & sessions <small>Coming in A13</small>
+              </button>
+              <hr />
+              <button class="logout" type="button" role="menuitem" (click)="logout()">
+                Sign out
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </header>
+
+    <main id="admin-content" class="content" tabindex="-1"><router-outlet /></main>
+  </div>
+</div>

@@ -1,0 +1,74 @@
+h1,
+h2,
+h3,
+h4,
+p {
+  margin-block-start: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--els-color-ink);
+  font-family: var(--els-font-display);
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+h1 {
+  margin-block-end: var(--els-space-6);
+  font-size: clamp(2.25rem, 1.9rem + 1.5vw, 3rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  margin-block-end: var(--els-space-5);
+  font-size: clamp(1.75rem, 1.55rem + 0.75vw, 2.25rem);
+  line-height: 1.16;
+}
+
+h3 {
+  margin-block-end: var(--els-space-4);
+  font-size: 1.75rem;
+  line-height: 1.22;
+}
+
+h4 {
+  margin-block-end: var(--els-space-3);
+  font-size: 1.375rem;
+  line-height: 1.27;
+}
+
+p {
+  margin-block-end: var(--els-space-4);
+}
+
+small {
+  font-size: 0.875rem;
+  line-height: 1.43;
+}
+
+.els-overline {
+  margin: 0;
+  color: var(--els-color-ink-soft);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.33;
+  text-transform: uppercase;
+}
+
+.els-page-title {
+  margin: 0;
+  font-family: var(--els-font-display);
+  font-size: clamp(2rem, 1.75rem + 1vw, 2.25rem);
+  font-weight: 600;
+  line-height: 1.17;
+  letter-spacing: -0.015em;
+}
+
+.els-body-muted {
+  color: var(--els-color-ink-soft);
+}

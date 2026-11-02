@@ -1,0 +1,1299 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model SystemRecord {
+  id        String   @id @default(uuid()) @db.Uuid
+  key       String   @unique
+  value     Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("system_records")
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum OtpPurpose {
+  REGISTRATION
+  LOGIN
+  PASSWORD_RESET
+}
+
+enum ConsentAction {
+  GRANTED
+  WITHDRAWN
+}
+
+enum DeletionStatus {
+  REQUESTED
+  PROCESSING
+  COMPLETED
+  REJECTED
+}
+
+enum PublicationStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  SCHEDULED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PersonRole {
+  AUTHOR
+  TRANSLATOR
+  NARRATOR
+  REVIEWER
+}
+
+enum MediaType {
+  IMAGE
+  AUDIO
+  VIDEO
+  DOCUMENT
+  CAPTION
+}
+
+enum MediaStatus {
+  PENDING_UPLOAD
+  UPLOADED
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum ClaimStatus {
+  DRAFT
+  VERIFIED
+  DISPUTED
+  REJECTED
+}
+
+enum RightsStatus {
+  PENDING
+  CLEARED
+  RESTRICTED
+  EXPIRED
+}
+
+enum WorkflowStage {
+  DRAFT
+  RESEARCH_REVIEW
+  EDITORIAL_REVIEW
+  RIGHTS_REVIEW
+  APPROVED
+  CHANGES_REQUESTED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum WorkflowActionType {
+  SUBMIT
+  APPROVE
+  REQUEST_CHANGES
+  TRANSITION
+  PUBLISH
+  ARCHIVE
+  CORRECTION
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum CartStatus {
+  ACTIVE
+  CONVERTED
+  ABANDONED
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+enum CouponType {
+  FIXED
+  PERCENTAGE
+}
+
+enum PaymentStatus {
+  CREATED
+  PENDING
+  CAPTURED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum RefundStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum EntitlementStatus {
+  ACTIVE
+  REVOKED
+  EXPIRED
+}
+
+enum QuizAttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+}
+
+enum SupportCaseStatus {
+  OPEN
+  ASSIGNED
+  RESOLVED
+  CLOSED
+}
+
+enum ContentReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+enum DeliveryStatus {
+  DRAFT
+  QUEUED
+  SENT
+  CANCELLED
+}
+
+model User {
+  id                   String               @id @default(uuid()) @db.Uuid
+  email                String?              @unique
+  phone                String?              @unique
+  passwordHash         String?              @map("password_hash")
+  status               UserStatus           @default(PENDING)
+  emailVerifiedAt      DateTime?            @map("email_verified_at")
+  phoneVerifiedAt      DateTime?            @map("phone_verified_at")
+  tokenVersion         Int                  @default(0) @map("token_version")
+  createdAt            DateTime             @default(now()) @map("created_at")
+  updatedAt            DateTime             @updatedAt @map("updated_at")
+  profile              UserProfile?
+  sessions             AuthSession[]
+  otpChallenges        OtpChallenge[]
+  passwordResets       PasswordResetToken[]
+  consents             UserConsent[]
+  roles                UserRole[]
+  deletionRequests     DeletionRequest[]
+  workAssignments      WorkAssignment[]
+  createdMedia         MediaAsset[]         @relation("MediaCreatedBy")
+  workflowAssignments  EditorialWorkflow[]  @relation("WorkflowAssignee")
+  workflowActions      WorkflowAction[]
+  carts                Cart[]
+  orders               Order[]
+  entitlements         Entitlement[]
+  refundRequests       Refund[]
+  lessonProgress       LessonProgress[]
+  bookmarks            Bookmark[]
+  highlights           Highlight[]
+  notes                Note[]
+  reflections          Reflection[]
+  quizAttempts         QuizAttempt[]
+  ratings              Rating[]
+  supportCases         SupportCase[]        @relation("SupportRequester")
+  assignedSupportCases SupportCase[]        @relation("SupportAssignee")
+  contentReports       ContentReport[]
+  createdNotifications Notification[]
+  createdCampaigns     Campaign[]
+  ownedReferralCodes   Referral[]           @relation("ReferralOwner")
+  claimedReferral      Referral?            @relation("ReferralClaimant")
+  analyticsEvents      AnalyticsEvent[]
+
+  @@map("users")
+  notificationStates UserNotificationState[]
+}
+
+model UserProfile {
+  userId      String  @id @map("user_id") @db.Uuid
+  displayName String? @map("display_name")
+  language    String  @default("en")
+  timezone    String  @default("Asia/Calcutta")
+  preferences Json    @default("{}")
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_profiles")
+}
+
+model AuthSession {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  familyId   String    @map("family_id") @db.Uuid
+  tokenHash  String    @unique @map("token_hash")
+  userAgent  String?   @map("user_agent")
+  ipAddress  String?   @map("ip_address")
+  expiresAt  DateTime  @map("expires_at")
+  lastUsedAt DateTime  @default(now()) @map("last_used_at")
+  revokedAt  DateTime? @map("revoked_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt])
+  @@map("auth_sessions")
+}
+
+model OtpChallenge {
+  id          String     @id @default(uuid()) @db.Uuid
+  userId      String?    @map("user_id") @db.Uuid
+  destination String
+  purpose     OtpPurpose
+  codeHash    String     @map("code_hash")
+  attempts    Int        @default(0)
+  expiresAt   DateTime   @map("expires_at")
+  consumedAt  DateTime?  @map("consumed_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([destination, purpose, createdAt])
+  @@map("otp_challenges")
+}
+
+model PasswordResetToken {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  tokenHash  String    @unique @map("token_hash")
+  expiresAt  DateTime  @map("expires_at")
+  consumedAt DateTime? @map("consumed_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("password_reset_tokens")
+}
+
+model ConsentType {
+  code     String        @id
+  name     String
+  required Boolean       @default(false)
+  version  Int           @default(1)
+  consents UserConsent[]
+
+  @@map("consent_types")
+}
+
+model UserConsent {
+  id          String        @id @default(uuid()) @db.Uuid
+  userId      String        @map("user_id") @db.Uuid
+  consentCode String        @map("consent_code")
+  action      ConsentAction
+  version     Int
+  createdAt   DateTime      @default(now()) @map("created_at")
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  consentType ConsentType   @relation(fields: [consentCode], references: [code])
+
+  @@index([userId, consentCode, createdAt])
+  @@map("user_consents")
+}
+
+model Role {
+  id          String           @id @default(uuid()) @db.Uuid
+  code        String           @unique
+  name        String
+  users       UserRole[]
+  permissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(uuid()) @db.Uuid
+  code        String           @unique
+  description String
+  roles       RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  userId     String   @map("user_id") @db.Uuid
+  roleId     String   @map("role_id") @db.Uuid
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       String     @map("role_id") @db.Uuid
+  permissionId String     @map("permission_id") @db.Uuid
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model DeletionRequest {
+  id          String         @id @default(uuid()) @db.Uuid
+  userId      String         @map("user_id") @db.Uuid
+  status      DeletionStatus @default(REQUESTED)
+  reason      String?
+  requestedAt DateTime       @default(now()) @map("requested_at")
+  completedAt DateTime?      @map("completed_at")
+  user        User           @relation(fields: [userId], references: [id])
+
+  @@index([userId, status])
+  @@map("deletion_requests")
+}
+
+model Language {
+  id         String  @id @default(uuid()) @db.Uuid
+  code       String  @unique
+  name       String
+  nativeName String  @map("native_name")
+  isActive   Boolean @default(true) @map("is_active")
+  works      Work[]
+
+  @@map("languages")
+}
+
+model Person {
+  id          String       @id @default(uuid()) @db.Uuid
+  slug        String       @unique
+  displayName String       @map("display_name")
+  biography   String?
+  imageUrl    String?      @map("image_url")
+  isPublic    Boolean      @default(false) @map("is_public")
+  workCredits WorkPerson[]
+
+  @@map("people")
+}
+
+model Category {
+  id          String         @id @default(uuid()) @db.Uuid
+  slug        String         @unique
+  name        String
+  description String?
+  parentId    String?        @map("parent_id") @db.Uuid
+  position    Int            @default(0)
+  isPublished Boolean        @default(false) @map("is_published")
+  parent      Category?      @relation("CategoryTree", fields: [parentId], references: [id])
+  children    Category[]     @relation("CategoryTree")
+  works       WorkCategory[]
+
+  @@index([parentId, position])
+  @@map("categories")
+}
+
+model Topic {
+  id          String      @id @default(uuid()) @db.Uuid
+  slug        String      @unique
+  name        String
+  description String?
+  isPublished Boolean     @default(false) @map("is_published")
+  works       WorkTopic[]
+
+  @@map("topics")
+}
+
+model Work {
+  id                 String              @id @default(uuid()) @db.Uuid
+  slug               String              @unique
+  languageId         String              @map("language_id") @db.Uuid
+  status             PublicationStatus   @default(DRAFT)
+  publishedVersionId String?             @unique @map("published_version_id") @db.Uuid
+  publishedAt        DateTime?           @map("published_at")
+  introductionVideoUrl String? @map("introduction_video_url")
+  introductionVideoId String? @map("introduction_video_id") @db.VarChar(32)
+  introductionVideoTitle String? @map("introduction_video_title") @db.VarChar(200)
+  introductionVideoCaptionInfo String? @map("introduction_video_caption_info")
+  createdAt          DateTime            @default(now()) @map("created_at")
+  updatedAt          DateTime            @updatedAt @map("updated_at")
+  language           Language            @relation(fields: [languageId], references: [id])
+  versions           WorkVersion[]       @relation("WorkVersions")
+  publishedVersion   WorkVersion?        @relation("PublishedWorkVersion", fields: [publishedVersionId], references: [id])
+  people             WorkPerson[]
+  categories         WorkCategory[]
+  topics             WorkTopic[]
+  pathItems          LearningPathItem[]
+  assignments        WorkAssignment[]
+  modules            ContentModule[]
+  claims             Claim[]
+  rights             RightsRecord[]
+  workflows          EditorialWorkflow[]
+  products           Product[]
+  entitlements       Entitlement[]
+  progress           LessonProgress[]
+  quizzes            Quiz[]
+  ratings            Rating[]
+  contentReports     ContentReport[]
+
+  @@index([status, publishedAt])
+  @@map("works")
+}
+
+model WorkVersion {
+  id            String              @id @default(uuid()) @db.Uuid
+  workId        String              @map("work_id") @db.Uuid
+  version       Int
+  title         String
+  subtitle      String?
+  summary       String
+  description   String?
+  content       Json?
+  coverImageUrl String?             @map("cover_image_url")
+  preview       Json?
+  references    Json?
+  searchText    String              @default("") @map("search_text")
+  createdAt     DateTime            @default(now()) @map("created_at")
+  work          Work                @relation("WorkVersions", fields: [workId], references: [id], onDelete: Cascade)
+  publishedFor  Work?               @relation("PublishedWorkVersion")
+  workflows     EditorialWorkflow[]
+
+  @@unique([workId, version])
+  @@index([title])
+  @@map("work_versions")
+}
+
+model WorkAssignment {
+  workId     String   @map("work_id") @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  work       Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([workId, userId])
+  @@map("work_assignments")
+}
+
+model ContentModule {
+  id        String   @id @default(uuid()) @db.Uuid
+  workId    String   @map("work_id") @db.Uuid
+  title     String
+  summary   String?
+  position  Int
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  lessons   Lesson[]
+
+  @@unique([workId, position])
+  @@map("content_modules")
+}
+
+model Lesson {
+  id                 String           @id @default(uuid()) @db.Uuid
+  moduleId           String           @map("module_id") @db.Uuid
+  slug               String
+  title              String
+  summary            String?
+  position           Int
+  publishedVersionId String?          @unique @map("published_version_id") @db.Uuid
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+  module             ContentModule    @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  versions           LessonVersion[]  @relation("LessonVersions")
+  publishedVersion   LessonVersion?   @relation("PublishedLessonVersion", fields: [publishedVersionId], references: [id])
+  progress           LessonProgress[]
+  bookmarks          Bookmark[]
+  highlights         Highlight[]
+  notes              Note[]
+  reflections        Reflection[]
+  quizzes            Quiz[]
+  contentReports     ContentReport[]
+
+  @@unique([moduleId, slug])
+  @@unique([moduleId, position])
+  @@map("lessons")
+}
+
+model LessonVersion {
+  id              String       @id @default(uuid()) @db.Uuid
+  lessonId        String       @map("lesson_id") @db.Uuid
+  version         Int
+  content         Json
+  transcript      String?
+  durationSeconds Int?         @map("duration_seconds")
+  createdAt       DateTime     @default(now()) @map("created_at")
+  lesson          Lesson       @relation("LessonVersions", fields: [lessonId], references: [id], onDelete: Cascade)
+  publishedFor    Lesson?      @relation("PublishedLessonVersion")
+  media           MediaAsset[]
+
+  @@unique([lessonId, version])
+  @@map("lesson_versions")
+}
+
+model MediaAsset {
+  id               String         @id @default(uuid()) @db.Uuid
+  lessonVersionId  String?        @map("lesson_version_id") @db.Uuid
+  createdById      String         @map("created_by_id") @db.Uuid
+  type             MediaType
+  status           MediaStatus    @default(PENDING_UPLOAD)
+  originalFilename String         @map("original_filename")
+  mimeType         String         @map("mime_type")
+  sizeBytes        BigInt         @map("size_bytes")
+  checksumSha256   String         @map("checksum_sha256")
+  objectKey        String         @unique @map("object_key")
+  uploadedAt       DateTime?      @map("uploaded_at")
+  metadata         Json?
+  createdAt        DateTime       @default(now()) @map("created_at")
+  lessonVersion    LessonVersion? @relation(fields: [lessonVersionId], references: [id], onDelete: SetNull)
+  createdBy        User           @relation("MediaCreatedBy", fields: [createdById], references: [id])
+
+  @@index([status, type])
+  @@map("media_assets")
+}
+
+model Source {
+  id              String        @id @default(uuid()) @db.Uuid
+  title           String
+  author          String?
+  publisher       String?
+  publicationDate DateTime?     @map("publication_date")
+  url             String?
+  isbn            String?
+  notes           String?
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+  claims          ClaimSource[]
+
+  @@index([title])
+  @@map("sources")
+}
+
+model Claim {
+  id             String        @id @default(uuid()) @db.Uuid
+  workId         String        @map("work_id") @db.Uuid
+  statement      String
+  classification String?
+  status         ClaimStatus   @default(DRAFT)
+  reviewNote     String?       @map("review_note")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  work           Work          @relation(fields: [workId], references: [id], onDelete: Cascade)
+  sources        ClaimSource[]
+
+  @@index([workId, status])
+  @@map("claims")
+}
+
+model ClaimSource {
+  claimId  String  @map("claim_id") @db.Uuid
+  sourceId String  @map("source_id") @db.Uuid
+  locator  String?
+  claim    Claim   @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  source   Source  @relation(fields: [sourceId], references: [id])
+
+  @@id([claimId, sourceId])
+  @@map("claim_sources")
+}
+
+model RightsRecord {
+  id          String       @id @default(uuid()) @db.Uuid
+  workId      String       @map("work_id") @db.Uuid
+  basis       String
+  territory   String       @default("WORLDWIDE")
+  status      RightsStatus @default(PENDING)
+  evidenceUrl String?      @map("evidence_url")
+  startsAt    DateTime?    @map("starts_at")
+  expiresAt   DateTime?    @map("expires_at")
+  notes       String?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  work        Work         @relation(fields: [workId], references: [id], onDelete: Cascade)
+
+  @@index([workId, status, expiresAt])
+  @@map("rights_records")
+}
+
+model EditorialWorkflow {
+  id            String           @id @default(uuid()) @db.Uuid
+  workId        String           @map("work_id") @db.Uuid
+  workVersionId String           @map("work_version_id") @db.Uuid
+  stage         WorkflowStage    @default(DRAFT)
+  assigneeId    String?          @map("assignee_id") @db.Uuid
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+  work          Work             @relation(fields: [workId], references: [id], onDelete: Cascade)
+  workVersion   WorkVersion      @relation(fields: [workVersionId], references: [id])
+  assignee      User?            @relation("WorkflowAssignee", fields: [assigneeId], references: [id])
+  actions       WorkflowAction[]
+
+  @@index([stage, assigneeId])
+  @@map("editorial_workflows")
+}
+
+model WorkflowAction {
+  id         String             @id @default(uuid()) @db.Uuid
+  workflowId String             @map("workflow_id") @db.Uuid
+  actorId    String             @map("actor_id") @db.Uuid
+  type       WorkflowActionType
+  fromStage  WorkflowStage      @map("from_stage")
+  toStage    WorkflowStage      @map("to_stage")
+  reason     String?
+  createdAt  DateTime           @default(now()) @map("created_at")
+  workflow   EditorialWorkflow  @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  actor      User               @relation(fields: [actorId], references: [id])
+
+  @@map("workflow_actions")
+}
+
+model AuditEvent {
+  id           String   @id @default(uuid()) @db.Uuid
+  actorId      String?  @map("actor_id") @db.Uuid
+  action       String
+  resourceType String   @map("resource_type")
+  resourceId   String   @map("resource_id")
+  reason       String?
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@index([resourceType, resourceId, createdAt])
+  @@map("audit_events")
+}
+
+model Product {
+  id          String         @id @default(uuid()) @db.Uuid
+  workId      String?        @map("work_id") @db.Uuid
+  name        String
+  description String?
+  status      ProductStatus  @default(DRAFT)
+  currency    String         @default("INR")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+  work        Work?          @relation(fields: [workId], references: [id])
+  prices      ProductPrice[]
+  bundleItems BundleItem[]
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+
+  @@index([status])
+  @@map("products")
+}
+
+model ProductPrice {
+  id          String    @id @default(uuid()) @db.Uuid
+  productId   String    @map("product_id") @db.Uuid
+  amountMinor BigInt    @map("amount_minor")
+  currency    String
+  startsAt    DateTime  @map("starts_at")
+  endsAt      DateTime? @map("ends_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, startsAt, endsAt])
+  @@map("product_prices")
+}
+
+model Bundle {
+  id          String        @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  status      ProductStatus @default(DRAFT)
+  items       BundleItem[]
+
+  @@map("bundles")
+}
+
+model BundleItem {
+  bundleId  String  @map("bundle_id") @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  position  Int
+  bundle    Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@id([bundleId, productId])
+  @@unique([bundleId, position])
+  @@map("bundle_items")
+}
+
+model Coupon {
+  id           String     @id @default(uuid()) @db.Uuid
+  code         String     @unique
+  type         CouponType
+  value        Int
+  currency     String?
+  minimumMinor BigInt?    @map("minimum_minor")
+  maxUses      Int?       @map("max_uses")
+  usedCount    Int        @default(0) @map("used_count")
+  startsAt     DateTime   @map("starts_at")
+  expiresAt    DateTime?  @map("expires_at")
+  isActive     Boolean    @default(true) @map("is_active")
+  carts        Cart[]
+  orders       Order[]
+
+  @@map("coupons")
+}
+
+model Cart {
+  id             String     @id @default(uuid()) @db.Uuid
+  userId         String?    @map("user_id") @db.Uuid
+  ownerTokenHash String?    @map("owner_token_hash")
+  status         CartStatus @default(ACTIVE)
+  currency       String     @default("INR")
+  couponId       String?    @map("coupon_id") @db.Uuid
+  expiresAt      DateTime   @map("expires_at")
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+  user           User?      @relation(fields: [userId], references: [id])
+  coupon         Coupon?    @relation(fields: [couponId], references: [id])
+  items          CartItem[]
+  order          Order?
+
+  @@index([userId, status])
+  @@map("carts")
+}
+
+model CartItem {
+  id        String  @id @default(uuid()) @db.Uuid
+  cartId    String  @map("cart_id") @db.Uuid
+  productId String  @map("product_id") @db.Uuid
+  quantity  Int     @default(1)
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+model Order {
+  id             String      @id @default(uuid()) @db.Uuid
+  userId         String      @map("user_id") @db.Uuid
+  cartId         String      @unique @map("cart_id") @db.Uuid
+  couponId       String?     @map("coupon_id") @db.Uuid
+  idempotencyKey String      @unique @map("idempotency_key")
+  status         OrderStatus @default(PENDING_PAYMENT)
+  currency       String
+  subtotalMinor  BigInt      @map("subtotal_minor")
+  discountMinor  BigInt      @map("discount_minor")
+  totalMinor     BigInt      @map("total_minor")
+  createdAt      DateTime    @default(now()) @map("created_at")
+  updatedAt      DateTime    @updatedAt @map("updated_at")
+  user           User        @relation(fields: [userId], references: [id])
+  cart           Cart        @relation(fields: [cartId], references: [id])
+  coupon         Coupon?     @relation(fields: [couponId], references: [id])
+  items          OrderItem[]
+  payments       Payment[]
+  refunds        Refund[]
+  invoice        Invoice?
+
+  @@index([userId, createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id               String  @id @default(uuid()) @db.Uuid
+  orderId          String  @map("order_id") @db.Uuid
+  productId        String  @map("product_id") @db.Uuid
+  productName      String  @map("product_name")
+  quantity         Int
+  unitAmountMinor  BigInt  @map("unit_amount_minor")
+  totalAmountMinor BigInt  @map("total_amount_minor")
+  order            Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product          Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id                    String         @id @default(uuid()) @db.Uuid
+  orderId               String         @map("order_id") @db.Uuid
+  provider              String         @default("PAYU")
+  providerTransactionId String?        @unique @map("provider_transaction_id")
+  idempotencyKey        String         @unique @map("idempotency_key")
+  status                PaymentStatus  @default(CREATED)
+  amountMinor           BigInt         @map("amount_minor")
+  currency              String
+  providerPayload       Json?          @map("provider_payload")
+  createdAt             DateTime       @default(now()) @map("created_at")
+  updatedAt             DateTime       @updatedAt @map("updated_at")
+  order                 Order          @relation(fields: [orderId], references: [id])
+  events                PaymentEvent[]
+  refunds               Refund[]
+
+  @@index([orderId, status])
+  @@map("payments")
+}
+
+model PaymentEvent {
+  id              String    @id @default(uuid()) @db.Uuid
+  paymentId       String    @map("payment_id") @db.Uuid
+  providerEventId String    @unique @map("provider_event_id")
+  type            String
+  payload         Json
+  processedAt     DateTime? @map("processed_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  payment         Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@map("payment_events")
+}
+
+model Entitlement {
+  id             String            @id @default(uuid()) @db.Uuid
+  userId         String            @map("user_id") @db.Uuid
+  workId         String            @map("work_id") @db.Uuid
+  sourceType     String            @map("source_type")
+  sourceId       String            @map("source_id")
+  idempotencyKey String            @unique @map("idempotency_key")
+  status         EntitlementStatus @default(ACTIVE)
+  startsAt       DateTime          @default(now()) @map("starts_at")
+  expiresAt      DateTime?         @map("expires_at")
+  revokedAt      DateTime?         @map("revoked_at")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  user           User              @relation(fields: [userId], references: [id])
+  work           Work              @relation(fields: [workId], references: [id])
+
+  @@unique([userId, workId, sourceId])
+  @@index([userId, status, expiresAt])
+  @@map("entitlements")
+}
+
+model LessonProgress {
+  id              String    @id @default(uuid()) @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  workId          String    @map("work_id") @db.Uuid
+  lessonId        String    @map("lesson_id") @db.Uuid
+  format          String    @default("default")
+  percent         Int       @default(0)
+  positionSeconds Int?      @map("position_seconds")
+  completedAt     DateTime? @map("completed_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  work            Work      @relation(fields: [workId], references: [id], onDelete: Cascade)
+  lesson          Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId, format])
+  @@index([userId, workId])
+  @@map("lesson_progress")
+}
+
+model Bookmark {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  lessonId  String   @map("lesson_id") @db.Uuid
+  label     String?
+  position  Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId, createdAt])
+  @@map("bookmarks")
+}
+
+model Highlight {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  lessonId  String   @map("lesson_id") @db.Uuid
+  quote     String
+  color     String   @default("yellow")
+  range     Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("highlights")
+}
+
+model Note {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  lessonId  String   @map("lesson_id") @db.Uuid
+  title     String?
+  body      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt])
+  @@map("notes")
+}
+
+model Reflection {
+  id         String    @id @default(uuid()) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  lessonId   String    @map("lesson_id") @db.Uuid
+  title      String?
+  ciphertext String
+  iv         String
+  authTag    String    @map("auth_tag")
+  deletedAt  DateTime? @map("deleted_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson     Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([userId, deletedAt, updatedAt])
+  @@map("reflections")
+}
+
+model Quiz {
+  id           String         @id @default(uuid()) @db.Uuid
+  workId       String         @map("work_id") @db.Uuid
+  lessonId     String?        @map("lesson_id") @db.Uuid
+  title        String
+  description  String?
+  passingScore Int            @default(70) @map("passing_score")
+  isActive     Boolean        @default(true) @map("is_active")
+  work         Work           @relation(fields: [workId], references: [id], onDelete: Cascade)
+  lesson       Lesson?        @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  questions    QuizQuestion[]
+  attempts     QuizAttempt[]
+
+  @@index([workId, isActive])
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id          String       @id @default(uuid()) @db.Uuid
+  quizId      String       @map("quiz_id") @db.Uuid
+  prompt      String
+  explanation String?
+  position    Int
+  quiz        Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  options     QuizOption[]
+  answers     QuizAnswer[]
+
+  @@unique([quizId, position])
+  @@map("quiz_questions")
+}
+
+model QuizOption {
+  id         String       @id @default(uuid()) @db.Uuid
+  questionId String       @map("question_id") @db.Uuid
+  text       String
+  isCorrect  Boolean      @default(false) @map("is_correct")
+  position   Int
+  question   QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers    QuizAnswer[]
+
+  @@unique([questionId, position])
+  @@map("quiz_options")
+}
+
+model QuizAttempt {
+  id          String            @id @default(uuid()) @db.Uuid
+  userId      String            @map("user_id") @db.Uuid
+  quizId      String            @map("quiz_id") @db.Uuid
+  status      QuizAttemptStatus @default(IN_PROGRESS)
+  score       Int?
+  submittedAt DateTime?         @map("submitted_at")
+  createdAt   DateTime          @default(now()) @map("created_at")
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quiz        Quiz              @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers     QuizAnswer[]
+
+  @@index([userId, quizId, createdAt])
+  @@map("quiz_attempts")
+}
+
+model QuizAnswer {
+  id         String       @id @default(uuid()) @db.Uuid
+  attemptId  String       @map("attempt_id") @db.Uuid
+  questionId String       @map("question_id") @db.Uuid
+  optionId   String       @map("option_id") @db.Uuid
+  attempt    QuizAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question   QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  option     QuizOption   @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@map("quiz_answers")
+}
+
+model Rating {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  workId    String   @map("work_id") @db.Uuid
+  value     Int
+  review    String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workId])
+  @@index([workId, value])
+  @@map("ratings")
+}
+
+model SupportCase {
+  id          String            @id @default(uuid()) @db.Uuid
+  requesterId String            @map("requester_id") @db.Uuid
+  assigneeId  String?           @map("assignee_id") @db.Uuid
+  subject     String
+  message     String
+  status      SupportCaseStatus @default(OPEN)
+  resolution  String?
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+  requester   User              @relation("SupportRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  assignee    User?             @relation("SupportAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([requesterId, createdAt])
+  @@map("support_cases")
+}
+
+model ContentReport {
+  id           String              @id @default(uuid()) @db.Uuid
+  reporterId   String              @map("reporter_id") @db.Uuid
+  workId       String?             @map("work_id") @db.Uuid
+  lessonId     String?             @map("lesson_id") @db.Uuid
+  reason       String
+  details      String?
+  status       ContentReportStatus @default(OPEN)
+  resolution   String?
+  correctionId String?             @map("correction_id") @db.Uuid
+  resolvedAt   DateTime?           @map("resolved_at")
+  createdAt    DateTime            @default(now()) @map("created_at")
+  reporter     User                @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  work         Work?               @relation(fields: [workId], references: [id], onDelete: Cascade)
+  lesson       Lesson?             @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([reporterId, createdAt])
+  @@map("content_reports")
+}
+
+model UserNotificationState {
+  id             String       @id @default(uuid()) @db.Uuid
+  userId         String       @map("user_id") @db.Uuid
+  notificationId String       @map("notification_id") @db.Uuid
+  readAt         DateTime?    @map("read_at")
+  deletedAt      DateTime?    @map("deleted_at")
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, notificationId])
+  @@index([userId, deletedAt])
+  @@map("user_notification_states")
+}
+model Notification {
+  id          String         @id @default(uuid()) @db.Uuid
+  createdById String         @map("created_by_id") @db.Uuid
+  title       String
+  body        String
+  audience    Json
+  status      DeliveryStatus @default(DRAFT)
+  scheduledAt DateTime?      @map("scheduled_at")
+  sentAt      DateTime?      @map("sent_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  createdBy   User           @relation(fields: [createdById], references: [id])
+  userStates  UserNotificationState[]
+
+  @@index([status, scheduledAt])
+  @@map("notifications")
+}
+
+model Campaign {
+  id          String         @id @default(uuid()) @db.Uuid
+  createdById String         @map("created_by_id") @db.Uuid
+  name        String
+  channel     String
+  audience    Json
+  content     Json
+  status      DeliveryStatus @default(DRAFT)
+  scheduledAt DateTime?      @map("scheduled_at")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  createdBy   User           @relation(fields: [createdById], references: [id])
+
+  @@index([status, scheduledAt])
+  @@map("campaigns")
+}
+
+model Referral {
+  id          String    @id @default(uuid()) @db.Uuid
+  code        String    @unique
+  ownerId     String?   @map("owner_id") @db.Uuid
+  claimedById String?   @unique @map("claimed_by_id") @db.Uuid
+  claimedAt   DateTime? @map("claimed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  owner       User?     @relation("ReferralOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  claimedBy   User?     @relation("ReferralClaimant", fields: [claimedById], references: [id], onDelete: SetNull)
+
+  @@map("referrals")
+}
+
+model OutboxEvent {
+  id            String    @id @default(uuid()) @db.Uuid
+  topic         String
+  aggregateType String    @map("aggregate_type")
+  aggregateId   String    @map("aggregate_id")
+  payload       Json
+  availableAt   DateTime  @default(now()) @map("available_at")
+  processedAt   DateTime? @map("processed_at")
+  attempts      Int       @default(0)
+  lastError     String?   @map("last_error")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  @@index([processedAt, availableAt])
+  @@map("outbox_events")
+}
+
+model AnalyticsEvent {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String?  @map("user_id") @db.Uuid
+  name         String
+  resourceType String?  @map("resource_type")
+  resourceId   String?  @map("resource_id")
+  properties   Json?
+  occurredAt   DateTime @default(now()) @map("occurred_at")
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([name, occurredAt])
+  @@index([userId, occurredAt])
+  @@map("analytics_events")
+}
+
+model FeatureFlag {
+  key           String   @id
+  description   String
+  enabled       Boolean  @default(false)
+  configuration Json     @default("{}")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("feature_flags")
+}
+
+model Setting {
+  key       String   @id
+  value     Json
+  isSecret  Boolean  @default(false) @map("is_secret")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+model WebhookReceipt {
+  id              String   @id @default(uuid()) @db.Uuid
+  provider        String
+  providerEventId String   @map("provider_event_id")
+  payload         Json
+  processedAt     DateTime @default(now()) @map("processed_at")
+
+  @@unique([provider, providerEventId])
+  @@index([provider, processedAt])
+  @@map("webhook_receipts")
+}
+
+model Refund {
+  id               String       @id @default(uuid()) @db.Uuid
+  orderId          String       @map("order_id") @db.Uuid
+  paymentId        String?      @map("payment_id") @db.Uuid
+  userId           String       @map("user_id") @db.Uuid
+  providerRefundId String?      @unique @map("provider_refund_id")
+  status           RefundStatus @default(REQUESTED)
+  amountMinor      BigInt       @map("amount_minor")
+  reason           String
+  decisionReason   String?      @map("decision_reason")
+  createdAt        DateTime     @default(now()) @map("created_at")
+  updatedAt        DateTime     @updatedAt @map("updated_at")
+  order            Order        @relation(fields: [orderId], references: [id])
+  payment          Payment?     @relation(fields: [paymentId], references: [id])
+  user             User         @relation(fields: [userId], references: [id])
+
+  @@index([userId, status])
+  @@map("refunds")
+}
+
+model Invoice {
+  id         String   @id @default(uuid()) @db.Uuid
+  orderId    String   @unique @map("order_id") @db.Uuid
+  number     String   @unique
+  storageKey String?  @map("storage_key")
+  issuedAt   DateTime @default(now()) @map("issued_at")
+  order      Order    @relation(fields: [orderId], references: [id])
+
+  @@map("invoices")
+}
+
+model WorkPerson {
+  workId   String     @map("work_id") @db.Uuid
+  personId String     @map("person_id") @db.Uuid
+  role     PersonRole
+  position Int        @default(0)
+  work     Work       @relation(fields: [workId], references: [id], onDelete: Cascade)
+  person   Person     @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@id([workId, personId, role])
+  @@map("work_people")
+}
+
+model WorkCategory {
+  workId     String   @map("work_id") @db.Uuid
+  categoryId String   @map("category_id") @db.Uuid
+  work       Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([workId, categoryId])
+  @@map("work_categories")
+}
+
+model WorkTopic {
+  workId  String @map("work_id") @db.Uuid
+  topicId String @map("topic_id") @db.Uuid
+  work    Work   @relation(fields: [workId], references: [id], onDelete: Cascade)
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([workId, topicId])
+  @@map("work_topics")
+}
+
+model LearningPath {
+  id          String             @id @default(uuid()) @db.Uuid
+  slug        String             @unique
+  title       String
+  summary     String
+  description String?
+  status      PublicationStatus  @default(DRAFT)
+  publishedAt DateTime?          @map("published_at")
+  items       LearningPathItem[]
+
+  @@index([status, publishedAt])
+  @@map("learning_paths")
+}
+
+model LearningPathItem {
+  pathId   String       @map("path_id") @db.Uuid
+  workId   String       @map("work_id") @db.Uuid
+  position Int
+  path     LearningPath @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  work     Work         @relation(fields: [workId], references: [id])
+
+  @@id([pathId, workId])
+  @@unique([pathId, position])
+  @@map("learning_path_items")
+}
+
+model Insight {
+  id          String            @id @default(uuid()) @db.Uuid
+  slug        String            @unique
+  title       String
+  excerpt     String
+  body        Json
+  status      PublicationStatus @default(DRAFT)
+  publishedAt DateTime?         @map("published_at")
+
+  @@index([status, publishedAt])
+  @@map("insights")
+}
+

@@ -1,0 +1,176 @@
+<section class="create-page els-container" aria-labelledby="create-work-title">
+  <header class="page-header">
+    <div>
+      <a routerLink="/admin/content/works">← Back to Works</a>
+      <p class="els-overline">Content authoring</p>
+      <h1 id="create-work-title">Create a Work</h1>
+      <p>
+        Establish the Work identity and first editorial version. Curriculum and publishing follow
+        inside the Work workspace.
+      </p>
+    </div>
+  </header>
+
+  @if (pageError()) {
+    <section class="page-state" role="alert">
+      <span aria-hidden="true">!</span>
+      <h2>Creation unavailable</h2>
+      <p>{{ pageError() }}</p>
+      <button type="button" (click)="cancel()">Return to Works</button>
+    </section>
+  } @else {
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <div class="form-layout">
+        <div class="main-column">
+          @if (formError()) {
+            <div class="alert" role="alert">{{ formError() }}</div>
+          }
+
+          <section class="form-section">
+            <div class="section-heading">
+              <span aria-hidden="true">I</span>
+              <div>
+                <h2>Work identity</h2>
+                <p>The permanent identity used throughout the library.</p>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="title">Title <span aria-hidden="true">*</span></label>
+              <input
+                id="title"
+                type="text"
+                formControlName="title"
+                autocomplete="off"
+                maxlength="160"
+                aria-describedby="title-help title-error"
+              />
+              <p id="title-help" class="help">This becomes the title of version 1.</p>
+              @if (form.controls.title.invalid && form.controls.title.touched) {
+                <p id="title-error" class="error">Enter a title between 3 and 160 characters.</p>
+              }
+            </div>
+
+            <div class="field">
+              <label for="slug">URL slug <span aria-hidden="true">*</span></label>
+              <div class="slug-control">
+                <span>/library/</span
+                ><input
+                  id="slug"
+                  type="text"
+                  formControlName="slug"
+                  maxlength="180"
+                  (input)="onSlugInput()"
+                  aria-describedby="slug-help slug-error"
+                />
+              </div>
+              <p id="slug-help" class="help">
+                Lowercase letters, numbers, and hyphens only. Treat this as permanent.
+              </p>
+              @if (form.controls.slug.invalid && form.controls.slug.touched) {
+                <p id="slug-error" class="error">
+                  Use a valid unique slug such as “book-of-hidden-knowledge”.
+                </p>
+              }
+            </div>
+
+            <div class="field">
+              <label for="language">Primary language <span aria-hidden="true">*</span></label>
+              <select id="language" formControlName="languageCode" [disabled]="loadingLanguages()">
+                @if (loadingLanguages()) {
+                  <option value="">Loading languages…</option>
+                }
+                @for (language of languages(); track language.code) {
+                  <option [value]="language.code">
+                    {{ language.name }} ({{ language.nativeName }})
+                  </option>
+                }
+              </select>
+              <p class="help">The backend links this Work to an active catalogue language.</p>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-heading">
+              <span aria-hidden="true">II</span>
+              <div>
+                <h2>Editorial introduction</h2>
+                <p>Optional initial context for version 1.</p>
+              </div>
+            </div>
+            <div class="field">
+              <div class="label-row">
+                <label for="summary">Summary</label
+                ><small>{{ summaryRemaining() }} characters remaining</small>
+              </div>
+              <textarea
+                id="summary"
+                formControlName="summary"
+                maxlength="500"
+                rows="6"
+                placeholder="A concise description of the knowledge contained in this Work."
+              ></textarea>
+              @if (form.controls.summary.invalid && form.controls.summary.touched) {
+                <p class="error">Summary must stay within 500 characters.</p>
+              }
+            </div>
+          </section>
+        </div>
+
+        <aside class="guidance">
+          <p class="els-overline">Creation sequence</p>
+          <h2>What happens next</h2>
+          <ol>
+            <li>
+              <span>1</span>
+              <div>
+                <strong>Work created</strong>
+                <p>A Draft Work and Admin assignment are created.</p>
+              </div>
+            </li>
+            <li>
+              <span>2</span>
+              <div>
+                <strong>Version 1 created</strong>
+                <p>Title and summary form the initial version.</p>
+              </div>
+            </li>
+            <li>
+              <span>3</span>
+              <div>
+                <strong>Build curriculum</strong>
+                <p>Add modules, lessons, metadata, sources, and rights.</p>
+              </div>
+            </li>
+            <li>
+              <span>4</span>
+              <div>
+                <strong>Review and publish</strong>
+                <p>Complete governance checks before learner visibility.</p>
+              </div>
+            </li>
+          </ol>
+          <div class="note">
+            <strong>Draft by default</strong>
+            <p>Creating a Work never publishes it automatically.</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="action-bar">
+        <div><strong>New Work</strong><span>Required fields are marked with *</span></div>
+        <div>
+          <button class="secondary" type="button" (click)="cancel()" [disabled]="submitting()">
+            Cancel</button
+          ><button
+            class="primary"
+            type="submit"
+            [disabled]="submitting() || loadingLanguages() || !languages().length"
+          >
+            {{ submitting() ? 'Creating Work…' : 'Create Work' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  }
+</section>

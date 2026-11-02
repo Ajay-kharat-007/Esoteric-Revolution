@@ -1,0 +1,312 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(24rem, 0.92fr) minmax(30rem, 1.08fr);
+  background: var(--els-color-paper);
+}
+.skip-link {
+  position: fixed;
+  z-index: 10;
+  inset: 1rem auto auto 1rem;
+  transform: translateY(-200%);
+  padding: 0.75rem 1rem;
+  background: var(--els-color-ink);
+  color: var(--els-color-paper-light);
+  border-radius: var(--els-radius-sm);
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+.archive-panel {
+  position: relative;
+  min-height: 100vh;
+  padding: clamp(2rem, 5vw, 5rem);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: var(--els-color-forest);
+  color: var(--els-color-paper-light);
+}
+.archive-panel::before,
+.archive-panel::after {
+  content: '';
+  position: absolute;
+  border: 1px solid rgb(184 134 59 / 30%);
+  border-radius: 50%;
+}
+.archive-panel::before {
+  width: 38rem;
+  height: 38rem;
+  right: -21rem;
+  top: 18%;
+}
+.archive-panel::after {
+  width: 21rem;
+  height: 21rem;
+  right: -11rem;
+  top: calc(18% + 8.5rem);
+}
+.brand {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: 1px solid var(--els-color-gold);
+  color: var(--els-color-gold-soft);
+  font-family: var(--els-font-display);
+  font-size: 1.75rem;
+  border-radius: 50%;
+}
+.archive-panel .els-overline,
+.archive-panel .brand-subtitle {
+  color: var(--els-color-gold-soft);
+}
+.brand-subtitle {
+  margin: 0.1rem 0 0;
+  font-size: 0.875rem;
+}
+.archive-copy {
+  position: relative;
+  z-index: 1;
+  max-width: 33rem;
+}
+.archive-copy h1 {
+  margin: 1.25rem 0 1.5rem;
+  color: var(--els-color-paper-light);
+  font-size: clamp(2.75rem, 5vw, 4.75rem);
+  line-height: 0.98;
+}
+.archive-copy > p:last-child {
+  max-width: 30rem;
+  color: #e9e1d2;
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+.ornament {
+  position: absolute;
+  left: clamp(2rem, 5vw, 5rem);
+  bottom: 7rem;
+  width: min(20rem, 45%);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--els-color-gold);
+}
+.ornament span {
+  height: 1px;
+  flex: 1;
+  background: rgb(184 134 59 / 55%);
+}
+.ornament i {
+  font-style: normal;
+}
+.restriction {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: #d9cfbd;
+  font-size: 0.8125rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.login-panel {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.5rem, 5vw, 5rem);
+  background: var(--els-color-paper);
+}
+.login-card {
+  width: min(100%, 29rem);
+}
+.mobile-brand {
+  display: none;
+}
+.login-card header {
+  margin-bottom: 2rem;
+}
+.login-card header .els-overline {
+  color: var(--els-color-rust);
+}
+.login-card h2 {
+  margin: 0.65rem 0 0.4rem;
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+}
+.login-card header > p:last-child {
+  color: var(--els-color-ink-soft);
+}
+.form-alert {
+  margin-bottom: 1.25rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--els-color-error);
+  border-radius: var(--els-radius-sm);
+  background: var(--els-color-error-surface);
+  color: var(--els-color-error);
+}
+form,
+.field {
+  display: flex;
+  flex-direction: column;
+}
+form {
+  gap: 1.35rem;
+}
+.field {
+  gap: 0.5rem;
+}
+label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.label-row a {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+input {
+  width: 100%;
+  height: 3rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--els-color-border);
+  border-radius: var(--els-radius-sm);
+  background: var(--els-color-paper-light);
+  color: var(--els-color-ink);
+  transition:
+    border-color var(--els-motion-fast),
+    box-shadow var(--els-motion-fast);
+}
+input:hover {
+  border-color: var(--els-color-border-strong);
+}
+input:focus {
+  border-color: var(--els-color-rust);
+  outline: none;
+  box-shadow: var(--els-shadow-focus);
+}
+input[aria-invalid='true'] {
+  border-color: var(--els-color-error);
+}
+.password-control {
+  position: relative;
+}
+.password-control input {
+  padding-right: 4.25rem;
+}
+.reveal-button {
+  position: absolute;
+  right: 0.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  min-width: 3.25rem;
+  min-height: 2.25rem;
+  border: 0;
+  background: transparent;
+  color: var(--els-color-rust);
+  font-weight: 600;
+}
+.field-error {
+  margin: 0;
+  color: var(--els-color-error);
+  font-size: 0.8125rem;
+}
+.submit-button {
+  min-height: 3.15rem;
+  margin-top: 0.35rem;
+  padding: 0.75rem 1.1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid var(--els-color-rust);
+  border-radius: var(--els-radius-sm);
+  background: var(--els-color-rust);
+  color: var(--els-color-paper-light);
+  font-weight: 700;
+  transition:
+    background var(--els-motion-fast),
+    transform var(--els-motion-fast);
+}
+.submit-button:hover:not(:disabled) {
+  background: var(--els-color-rust-hover);
+}
+.submit-button:active:not(:disabled) {
+  transform: translateY(1px);
+  background: var(--els-color-rust-active);
+}
+.submit-button:disabled {
+  opacity: 0.7;
+}
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgb(250 246 239 / 40%);
+  border-top-color: var(--els-color-paper-light);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+.security-note {
+  margin: 1.75rem 0 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.55rem;
+  color: var(--els-color-ink-muted);
+  font-size: 0.8125rem;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 56rem) {
+  .auth-page {
+    grid-template-columns: 1fr;
+  }
+  .archive-panel {
+    display: none;
+  }
+  .login-panel {
+    padding: 2rem 1.25rem;
+  }
+  .mobile-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 3rem;
+  }
+  .mobile-brand .brand-mark {
+    width: 2.65rem;
+    height: 2.65rem;
+    color: var(--els-color-rust);
+    border-color: var(--els-color-gold);
+  }
+}
+@media (max-width: 30rem) {
+  .label-row {
+    align-items: flex-start;
+  }
+  .login-card h2 {
+    font-size: 2.45rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.4s;
+  }
+}

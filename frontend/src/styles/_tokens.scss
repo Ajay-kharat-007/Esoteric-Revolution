@@ -1,0 +1,95 @@
+:root {
+  color-scheme: light;
+
+  /* Foundation */
+  --els-color-paper: #f2ead9;
+  --els-color-paper-light: #faf6ef;
+  --els-color-paper-soft: #f7f0e5;
+  --els-color-paper-deep: #e8dcc8;
+  --els-color-ink: #20180f;
+  --els-color-ink-soft: #5a4f42;
+  --els-color-ink-muted: #786c5d;
+  --els-color-ink-faint: #9a8d7d;
+  --els-color-white: #ffffff;
+
+  /* Brand */
+  --els-color-gold: #b8863b;
+  --els-color-gold-hover: #9f712c;
+  --els-color-gold-soft: #e7d4ad;
+  --els-color-gold-subtle: #f4ead5;
+  --els-color-rust: #a6431f;
+  --els-color-rust-hover: #873516;
+  --els-color-rust-active: #6f2a11;
+  --els-color-rust-soft: #efd5c9;
+  --els-color-rust-subtle: #f8eae3;
+  --els-color-forest: #3e4d3a;
+  --els-color-forest-hover: #303d2d;
+  --els-color-forest-soft: #d5ddd0;
+  --els-color-forest-subtle: #edf1ea;
+
+  /* Semantic */
+  --els-color-success: #426b46;
+  --els-color-success-surface: #eff6ef;
+  --els-color-warning: #9a651f;
+  --els-color-warning-surface: #fbf3e3;
+  --els-color-error: #a33b32;
+  --els-color-error-surface: #f9e9e7;
+  --els-color-info: #3f6270;
+  --els-color-info-surface: #edf4f6;
+
+  /* Borders */
+  --els-color-border-subtle: #e2d6c3;
+  --els-color-border: #d3c3aa;
+  --els-color-border-strong: #bca98a;
+  --els-color-border-gold: #c9a76b;
+  --els-color-focus: #a6431f;
+
+  /* Typography */
+  --els-font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --els-font-interface:
+    'Source Sans 3', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Space */
+  --els-space-0: 0;
+  --els-space-1: 0.25rem;
+  --els-space-2: 0.5rem;
+  --els-space-3: 0.75rem;
+  --els-space-4: 1rem;
+  --els-space-5: 1.25rem;
+  --els-space-6: 1.5rem;
+  --els-space-8: 2rem;
+  --els-space-10: 2.5rem;
+  --els-space-12: 3rem;
+  --els-space-16: 4rem;
+  --els-space-20: 5rem;
+  --els-space-24: 6rem;
+
+  /* Shape and elevation */
+  --els-radius-xs: 0.25rem;
+  --els-radius-sm: 0.375rem;
+  --els-radius-md: 0.625rem;
+  --els-radius-lg: 0.875rem;
+  --els-radius-xl: 1.25rem;
+  --els-radius-pill: 999px;
+  --els-shadow-xs: 0 1px 2px rgb(32 24 15 / 6%);
+  --els-shadow-sm: 0 2px 8px rgb(32 24 15 / 8%);
+  --els-shadow-md: 0 8px 24px rgb(32 24 15 / 10%);
+  --els-shadow-lg: 0 18px 48px rgb(32 24 15 / 14%);
+  --els-shadow-focus: 0 0 0 3px rgb(166 67 31 / 18%);
+
+  /* Layout */
+  --els-content-max: 100rem;
+  --els-reading-max: 51.25rem;
+  --els-form-max: 60rem;
+  --els-sidebar-width: 17.5rem;
+  --els-sidebar-collapsed-width: 4.75rem;
+  --els-header-height: 4.5rem;
+
+  /* Motion */
+  --els-motion-fast: 120ms;
+  --els-motion-default: 180ms;
+  --els-motion-slow: 280ms;
+  --els-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --els-ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --els-ease-exit: cubic-bezier(0.4, 0, 1, 1);
+}

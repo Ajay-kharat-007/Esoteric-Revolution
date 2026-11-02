@@ -1,0 +1,293 @@
+﻿<section class="workspace-page els-container" aria-labelledby="work-title">
+  <a class="back" routerLink="/admin/content/works">â† Back to Works</a>
+  @if (loading()) {
+    <div class="skeleton hero"></div>
+    <div class="skeleton body"></div>
+  } @else if (error()) {
+    <section class="state" role="alert">
+      <h1>Work unavailable</h1>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="load()">Try again</button>
+    </section>
+  } @else if (work(); as item) {
+    <header class="hero-card">
+      <div>
+        <p class="els-overline">Work workspace</p>
+        <div class="title-row">
+          <h1 id="work-title">{{ title() }}</h1>
+          <span class="status">{{ label(item.status) }}</span>
+        </div>
+        <p>{{ latest()?.summary || 'No editorial summary has been added yet.' }}</p>
+        <div class="meta">
+          <span>{{ item.versions.length }} versions</span
+          ><span>{{ item.modules.length }} modules</span><span>{{ lessonCount() }} lessons</span
+          ><span>Updated {{ date(item.updatedAt) }}</span>
+        </div>
+      </div>
+      <div class="seal" aria-hidden="true">{{ title().charAt(0) }}</div>
+    </header>
+    <nav class="tabs" aria-label="Work sections">
+      <button
+        type="button"
+        [class.active]="activeTab() === 'overview'"
+        (click)="selectTab('overview')"
+      >
+        Overview
+      </button>
+      <button
+        type="button"
+        [class.active]="activeTab() === 'curriculum'"
+        (click)="selectTab('curriculum')"
+      >
+        Curriculum
+      </button>
+      <button
+        type="button"
+        [class.active]="activeTab() === 'versions'"
+        (click)="selectTab('versions')"
+      >
+        Versions
+      </button>
+      <button type="button" disabled>Media <small>A4.7</small></button
+      ><button type="button" disabled>Sources & Claims</button
+      ><button type="button" disabled>Rights</button
+      ><button type="button" disabled>Publishing <small>A4.8</small></button>
+    </nav>
+
+    @if (activeTab() === 'overview') {
+      <div class="grid">
+        <main>
+          <form [formGroup]="form" (ngSubmit)="save()">
+            <section class="card">
+              <header>
+                <div>
+                  <p class="els-overline">Identity</p>
+                  <h2>Core metadata</h2>
+                </div>
+              </header>
+              @if (saveError()) {
+                <div class="alert">{{ saveError() }}</div>
+              }
+              @if (saved()) {
+                <div class="success">Changes saved successfully.</div>
+              }
+              <label for="slug">URL slug</label>
+              <div class="slug">
+                <span>/library/</span><input id="slug" formControlName="slug" />
+              </div>
+            </section>
+            <section class="card">
+              <header>
+                <div>
+                  <p class="els-overline">Introduction media</p>
+                  <h2>YouTube video</h2>
+                </div>
+              </header>
+              <label for="video-url">YouTube URL</label
+              ><input id="video-url" formControlName="introductionVideoUrl" /><label
+                for="video-title"
+                >Accessible title</label
+              ><input id="video-title" formControlName="introductionVideoTitle" /><label
+                for="caption"
+                >Caption information</label
+              ><textarea
+                id="caption"
+                formControlName="introductionVideoCaptionInfo"
+                rows="4"
+              ></textarea>
+            </section>
+            <div class="actions">
+              <span>{{ form.dirty ? 'Unsaved changes' : 'All changes saved' }}</span
+              ><button type="submit" [disabled]="saving() || !form.dirty">
+                {{ saving() ? 'Savingâ€¦' : 'Save metadata' }}
+              </button>
+            </div>
+          </form>
+        </main>
+        <aside>
+          <section class="card">
+            <p class="els-overline">Editorial snapshot</p>
+            <h2>Latest version</h2>
+            <h3>{{ latest()?.title || 'No version' }}</h3>
+            <p>{{ latest()?.summary || 'Version editing arrives in A4.6.' }}</p>
+          </section>
+          <section class="card">
+            <p class="els-overline">Publication</p>
+            <h2>{{ label(item.status) }}</h2>
+            <p>Published: {{ date(item.publishedAt) }}</p>
+          </section>
+        </aside>
+      </div>
+    } @else if (activeTab() === 'curriculum') {
+      <section class="curriculum">
+        <header class="curriculum-header">
+          <div>
+            <p class="els-overline">Learning structure</p>
+            <h2>Curriculum builder</h2>
+            <p>
+              Organize modules and lesson identities. Lesson content and versions arrive in A4.6.
+            </p>
+          </div>
+          <button class="primary" type="button" (click)="openAddModule()">ï¼‹ Add module</button>
+        </header>
+        @if (mutationError()) {
+          <div class="alert" role="alert">{{ mutationError() }}</div>
+        }
+        @if (addingModule() || editingModuleId()) {
+          <form class="inline-form" [formGroup]="moduleForm" (ngSubmit)="submitModule()">
+            <h3>{{ editingModuleId() ? 'Edit module' : 'Add module' }}</h3>
+            <div class="form-grid">
+              <label>Title<input formControlName="title" /></label
+              ><label>Position<input type="number" min="1" formControlName="position" /></label
+              ><label class="full"
+                >Summary<textarea rows="3" formControlName="summary"></textarea>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="secondary" (click)="cancelModuleForm()">Cancel</button
+              ><button type="submit" class="primary" [disabled]="mutating()">
+                {{ mutating() ? 'Savingâ€¦' : 'Save module' }}
+              </button>
+            </div>
+          </form>
+        }
+        @if (item.modules.length) {
+          <div class="module-list">
+            @for (module of item.modules; track module.id; let moduleIndex = $index) {
+              <article class="module">
+                <header>
+                  <div class="module-number">{{ moduleIndex + 1 }}</div>
+                  <div>
+                    <p>Module {{ module.position }}</p>
+                    <h3>{{ module.title }}</h3>
+                    <small>{{ module.summary || 'No module summary.' }}</small>
+                  </div>
+                  <div class="module-actions">
+                    <button type="button" class="secondary" (click)="openEditModule(module)">
+                      Edit</button
+                    ><button type="button" class="primary" (click)="openAddLesson(module)">
+                      ï¼‹ Lesson
+                    </button>
+                  </div>
+                </header>
+                @if (addingLessonTo() === module.id) {
+                  <form
+                    class="inline-form lesson-form"
+                    [formGroup]="lessonForm"
+                    (ngSubmit)="submitLesson()"
+                  >
+                    <h4>Add lesson</h4>
+                    <div class="form-grid">
+                      <label>Title<input formControlName="title" /></label
+                      ><label>Slug<input formControlName="slug" /></label
+                      ><label
+                        >Position<input type="number" min="1" formControlName="position" /></label
+                      ><label class="full"
+                        >Summary<textarea rows="3" formControlName="summary"></textarea>
+                      </label>
+                    </div>
+                    <div class="form-actions">
+                      <button type="button" class="secondary" (click)="cancelLesson()">
+                        Cancel</button
+                      ><button type="submit" class="primary" [disabled]="mutating()">
+                        {{ mutating() ? 'Creatingâ€¦' : 'Create lesson' }}
+                      </button>
+                    </div>
+                  </form>
+                }
+                @if (module.lessons.length) {
+                  <ol>
+                    @for (lesson of module.lessons; track lesson.id; let lessonIndex = $index) {
+                      <li>
+                        <span>{{ moduleIndex + 1 }}.{{ lessonIndex + 1 }}</span>
+                        <div>
+                          <strong>{{ lesson.title }}</strong
+                          ><code>{{ lesson.slug }}</code
+                          ><small>{{ lesson.summary || 'No lesson summary.' }}</small>
+                        </div>
+                        <div>
+                          <b>{{ lesson.versions.length }}</b
+                          ><small>versions</small>
+                        </div>
+                        <a
+                          class="lesson-open"
+                          [routerLink]="['/admin/content/lessons', lesson.id]"
+                          [attr.aria-label]="'Open ' + lesson.title + ' in Lesson Editor'"
+                          title="Open Lesson Editor"
+                        >
+                          â€º
+                        </a>
+                      </li>
+                    }
+                  </ol>
+                } @else {
+                  <div class="module-empty">
+                    No lessons yet. Add the first lesson to this module.
+                  </div>
+                }
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="curriculum-empty">
+            <span aria-hidden="true">âŒ</span>
+            <h3>No curriculum yet</h3>
+            <p>Add the first module, then organize lessons inside it.</p>
+            <button type="button" class="primary" (click)="openAddModule()">
+              Create first module
+            </button>
+          </div>
+        }
+      </section>
+    } @else if (activeTab() === 'versions') {
+      <section class="curriculum">
+        <header class="curriculum-header">
+          <div>
+            <p class="els-overline">Editorial history</p>
+            <h2>Work versions</h2>
+            <p>Create immutable editorial versions. Publishing selection arrives in A4.8.</p>
+          </div>
+        </header>
+        @if (mutationError()) {
+          <div class="alert">{{ mutationError() }}</div>
+        }
+        <form class="inline-form" [formGroup]="workVersionForm" (ngSubmit)="createWorkVersion()">
+          <h3>Create new Work version</h3>
+          <div class="form-grid">
+            <label>Title<input formControlName="title" /></label
+            ><label>Subtitle<input formControlName="subtitle" /></label
+            ><label class="full"
+              >Summary<textarea rows="3" formControlName="summary"></textarea></label
+            ><label class="full"
+              >Description<textarea rows="4" formControlName="description"></textarea></label
+            ><label class="full"
+              >Content JSON<textarea rows="7" formControlName="contentJson"></textarea></label
+            ><label class="full"
+              >Preview JSON<textarea rows="5" formControlName="previewJson"></textarea>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="primary" type="submit" [disabled]="creatingWorkVersion()">
+              {{ creatingWorkVersion() ? 'Creatingâ€¦' : 'Create version' }}
+            </button>
+          </div>
+        </form>
+        <div class="module-list">
+          @for (version of item.versions; track version.id) {
+            <article class="module">
+              <header>
+                <div class="module-number">{{ version.version }}</div>
+                <div>
+                  <p>Version {{ version.version }}</p>
+                  <h3>{{ version.title }}</h3>
+                  <small>{{ version.summary }}</small>
+                </div>
+                <div>{{ date(version.createdAt) }}</div>
+              </header>
+            </article>
+          }
+        </div>
+      </section>
+    }
+  }
+</section>

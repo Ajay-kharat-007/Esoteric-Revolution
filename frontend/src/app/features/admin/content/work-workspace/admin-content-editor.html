@@ -1,0 +1,121 @@
+<section class="editor">
+  <header>
+    <div>
+      <p class="els-overline">Structured authoring</p>
+      <h3>Work content</h3>
+      <p>Build the learner-facing document without writing JSON.</p>
+    </div>
+    <div class="stats">
+      <strong>{{ wordCount() }}</strong
+      ><span>words</span>
+    </div>
+  </header>
+  <div class="palette">
+    <span>Add block</span><button type="button" (click)="add('heading')">Heading</button
+    ><button type="button" (click)="add('paragraph')">Paragraph</button
+    ><button type="button" (click)="add('quote')">Quote</button
+    ><button type="button" (click)="add('callout')">Callout</button>
+  </div>
+  @if (blocks().length) {
+    <div class="blocks">
+      @for (block of blocks(); track block.id; let first = $first; let last = $last) {
+        <article class="block">
+          <div class="block-bar">
+            <strong>{{ block.type }}</strong>
+            <div>
+              <button
+                type="button"
+                [disabled]="first"
+                (click)="move(block.id, -1)"
+                aria-label="Move up"
+              >
+                ↑</button
+              ><button
+                type="button"
+                [disabled]="last"
+                (click)="move(block.id, 1)"
+                aria-label="Move down"
+              >
+                ↓</button
+              ><button type="button" class="danger" (click)="remove(block.id)">Remove</button>
+            </div>
+          </div>
+          @if (block.type === 'heading') {
+            <label
+              >Heading level<select
+                [ngModel]="block.level || 2"
+                (ngModelChange)="update(block.id, { level: headingLevel($event) })"
+              >
+                <option [ngValue]="2">Heading 2</option>
+                <option [ngValue]="3">Heading 3</option>
+              </select></label
+            >
+          }
+          @if (block.type === 'callout') {
+            <label
+              >Callout tone<select
+                [ngModel]="block.tone || 'note'"
+                (ngModelChange)="update(block.id, { tone: $event })"
+              >
+                <option value="note">Note</option>
+                <option value="insight">Insight</option>
+                <option value="warning">Warning</option>
+              </select></label
+            >
+          }
+          <label
+            >{{ block.type === 'heading' ? 'Heading text' : 'Content'
+            }}<textarea
+              [rows]="block.type === 'heading' ? 2 : 5"
+              [ngModel]="block.text"
+              (ngModelChange)="update(block.id, { text: $event })"
+              [placeholder]="block.type === 'quote' ? 'Enter quotation…' : 'Write content…'"
+            ></textarea>
+          </label>
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="empty">
+      <span>✦</span>
+      <h4>Start the document</h4>
+      <p>
+        Add a heading or paragraph block. The editor will create valid backend JSON automatically.
+      </p>
+    </div>
+  }
+  <section class="preview-fields">
+    <p class="els-overline">Learner preview</p>
+    <h3>Preview settings</h3>
+    <label
+      >Preview excerpt<textarea
+        rows="5"
+        [ngModel]="excerpt()"
+        (ngModelChange)="excerpt.set($event); previewChanged()"
+        placeholder="Short learner-facing preview shown before access."
+      ></textarea>
+    </label>
+    <div class="two">
+      <label
+        >Featured section titles<input
+          [ngModel]="featuredSections()"
+          (ngModelChange)="featuredSections.set($event); previewChanged()"
+          placeholder="Introduction, Key ideas"
+        /><small>Separate titles with commas.</small></label
+      ><label
+        >Estimated reading time<input
+          type="number"
+          min="1"
+          [ngModel]="estimatedReadMinutes()"
+          (ngModelChange)="estimatedReadMinutes.set(+$event); previewChanged()"
+        /><small>Minutes</small></label
+      >
+    </div>
+    <div class="preview-card">
+      <p class="els-overline">Preview</p>
+      <h4>{{ previewSections()[0] || 'Work preview' }}</h4>
+      <p>{{ excerpt() || 'The learner preview will appear here.' }}</p>
+      <span>{{ estimatedReadMinutes() }} min read</span>
+    </div>
+  </section>
+</section>

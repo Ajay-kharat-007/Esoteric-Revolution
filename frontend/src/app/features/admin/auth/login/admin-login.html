@@ -1,0 +1,103 @@
+<main class="auth-page">
+  <a class="skip-link" href="#login-form">Skip to sign in</a>
+
+  <section class="archive-panel" aria-labelledby="archive-title">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">E</span>
+      <div>
+        <p class="els-overline">The Esoteric Library</p>
+        <p class="brand-subtitle">Administration portal</p>
+      </div>
+    </div>
+
+    <div class="archive-copy">
+      <p class="els-overline">The illuminated archive</p>
+      <h1 id="archive-title">Guard the knowledge hidden in the pages.</h1>
+      <p>
+        A private command centre for preserving works, guiding learners, and managing the library.
+      </p>
+    </div>
+
+    <div class="ornament" aria-hidden="true"><span></span><i>✦</i><span></span></div>
+    <p class="restriction">Restricted to authorized administration</p>
+  </section>
+
+  <section class="login-panel" aria-labelledby="login-title">
+    <div class="login-card">
+      <div class="mobile-brand">
+        <span class="brand-mark" aria-hidden="true">E</span>
+        <p class="els-overline">The Esoteric Library</p>
+      </div>
+
+      <header>
+        <p class="els-overline">Welcome to the archive</p>
+        <h2 id="login-title">Welcome back</h2>
+        <p>Sign in to manage the Esoteric Library.</p>
+      </header>
+
+      @if (formError()) {
+        <div class="form-alert" role="alert">{{ formError() }}</div>
+      }
+
+      <form id="login-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="field">
+          <label for="identifier">Email address or phone</label>
+          <input
+            id="identifier"
+            type="text"
+            formControlName="identifier"
+            autocomplete="username"
+            inputmode="email"
+            [attr.aria-invalid]="
+              form.controls.identifier.invalid && form.controls.identifier.touched
+            "
+            aria-describedby="identifier-error"
+          />
+          @if (form.controls.identifier.invalid && form.controls.identifier.touched) {
+            <p id="identifier-error" class="field-error">Enter your email address or phone.</p>
+          }
+        </div>
+
+        <div class="field">
+          <div class="label-row">
+            <label for="password">Password</label>
+            <a routerLink="/admin/forgot-password">Forgot password?</a>
+          </div>
+          <div class="password-control">
+            <input
+              id="password"
+              [type]="passwordVisible() ? 'text' : 'password'"
+              formControlName="password"
+              autocomplete="current-password"
+              [attr.aria-invalid]="form.controls.password.invalid && form.controls.password.touched"
+              aria-describedby="password-error"
+            />
+            <button
+              type="button"
+              class="reveal-button"
+              (click)="togglePassword()"
+              [attr.aria-label]="passwordVisible() ? 'Hide password' : 'Show password'"
+            >
+              {{ passwordVisible() ? 'Hide' : 'Show' }}
+            </button>
+          </div>
+          @if (form.controls.password.invalid && form.controls.password.touched) {
+            <p id="password-error" class="field-error">Enter your password.</p>
+          }
+        </div>
+
+        <button class="submit-button" type="submit" [disabled]="submitting()">
+          @if (submitting()) {
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Opening the archive…</span>
+          } @else {
+            <span>Sign in</span>
+            <span aria-hidden="true">→</span>
+          }
+        </button>
+      </form>
+
+      <p class="security-note"><span aria-hidden="true">◇</span> Protected administration access</p>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,84 @@
+<section class="lesson-page els-container">
+  @if (loading()) {
+    <div class="skeleton"></div>
+  } @else if (error()) {
+    <div class="state">
+      <h1>Lesson unavailable</h1>
+      <p>{{ error() }}</p>
+    </div>
+  } @else if (lesson(); as item) {
+    <a class="back" [routerLink]="['/admin/content/works', item.module.work.id]"
+      >← Back to {{ item.module.work.slug }}</a
+    >
+    <header>
+      <p class="els-overline">{{ item.module.title }}</p>
+      <h1>{{ item.title }}</h1>
+      <div>
+        <span>Lesson {{ item.position }}</span
+        ><span>{{ item.versions.length }} versions</span><code>{{ item.slug }}</code>
+      </div>
+    </header>
+    @if (actionError()) {
+      <div class="alert" role="alert">{{ actionError() }}</div>
+    }
+    <div class="grid">
+      <main>
+        <form class="card" [formGroup]="metadata" (ngSubmit)="saveMetadata()">
+          <p class="els-overline">Lesson identity</p>
+          <h2>Metadata</h2>
+          <label>Title<input formControlName="title" /></label
+          ><label>Summary<textarea rows="4" formControlName="summary"></textarea></label
+          ><label>Position<input type="number" min="1" formControlName="position" /></label
+          ><button type="submit" [disabled]="saving() || !metadata.dirty">
+            {{ saving() ? 'Saving…' : 'Save metadata' }}
+          </button>
+        </form>
+        <form class="card" [formGroup]="version" (ngSubmit)="createVersion()">
+          <p class="els-overline">Immutable content</p>
+          <h2>Create lesson version</h2>
+          <label
+            >Content JSON<textarea
+              class="code"
+              rows="14"
+              formControlName="contentJson"
+              spellcheck="false"
+            ></textarea></label
+          ><label>Transcript<textarea rows="7" formControlName="transcript"></textarea></label
+          ><label
+            >Duration in seconds<input
+              type="number"
+              min="0"
+              formControlName="durationSeconds" /></label
+          ><button type="submit" [disabled]="creating()">
+            {{ creating() ? 'Creating…' : 'Create new version' }}
+          </button>
+        </form>
+      </main>
+      <aside class="card">
+        <p class="els-overline">Version history</p>
+        <h2>{{ item.versions.length }} versions</h2>
+        @if (item.versions.length) {
+          <ol>
+            @for (version of item.versions; track version.id) {
+              <li>
+                <div>
+                  <strong>Version {{ version.version }}</strong
+                  ><time>{{ date(version.createdAt) }}</time>
+                </div>
+                <span
+                  >{{ version.durationSeconds ?? 0 }} sec · {{ version.media.length }} media</span
+                >
+                <details>
+                  <summary>Inspect JSON</summary>
+                  <pre>{{ json(version.content) }}</pre>
+                </details>
+              </li>
+            }
+          </ol>
+        } @else {
+          <div class="empty">No content version exists yet.</div>
+        }
+      </aside>
+    </div>
+  }
+</section>

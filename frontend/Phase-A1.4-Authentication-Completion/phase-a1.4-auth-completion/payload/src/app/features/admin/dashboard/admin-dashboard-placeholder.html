@@ -1,0 +1,14 @@
+<main class="els-container">
+  <header>
+    <div>
+      <p class="els-overline">Protected administration</p>
+      <h1>Admin Dashboard</h1>
+      <p>Signed in as {{ state.user()?.displayName || state.user()?.email }}.</p>
+    </div>
+    <button type="button" (click)="logout()">Sign out</button>
+  </header>
+  <section class="els-surface">
+    <h2>Authentication verified</h2>
+    <p>The full Admin shell and dashboard begin in Phase A2 and Phase A3.</p>
+  </section>
+</main>

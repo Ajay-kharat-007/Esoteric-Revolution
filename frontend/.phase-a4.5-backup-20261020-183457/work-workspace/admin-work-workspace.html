@@ -1,0 +1,139 @@
+<section class="workspace-page els-container" aria-labelledby="work-title">
+  <a class="back" routerLink="/admin/content/works">← Back to Works</a>
+  @if (loading()) {
+    <div class="skeleton hero"></div>
+    <div class="skeleton body"></div>
+  } @else if (error()) {
+    <section class="state" role="alert">
+      <h1>Work unavailable</h1>
+      <p>{{ error() }}</p>
+      <button type="button" (click)="load()">Try again</button>
+    </section>
+  } @else if (work(); as item) {
+    <header class="hero-card">
+      <div>
+        <p class="els-overline">Work workspace</p>
+        <div class="title-row">
+          <h1 id="work-title">{{ title() }}</h1>
+          <span class="status">{{ label(item.status) }}</span>
+        </div>
+        <p>{{ latest()?.summary || 'No editorial summary has been added yet.' }}</p>
+        <div class="meta">
+          <span>{{ item.languageId }}</span
+          ><span>{{ item.versions.length }} version{{ item.versions.length === 1 ? '' : 's' }}</span
+          ><span>{{ item.modules.length }} modules</span><span>{{ lessonCount() }} lessons</span
+          ><span>Updated {{ date(item.updatedAt) }}</span>
+        </div>
+      </div>
+      <div class="seal" aria-hidden="true">{{ title().charAt(0) }}</div>
+    </header>
+    <nav class="tabs" aria-label="Work sections">
+      <a class="active" href="#overview">Overview</a><span>Curriculum <small>A4.5</small></span
+      ><span>Versions <small>A4.6</small></span
+      ><span>Media <small>A4.7</small></span
+      ><span>Sources & Claims</span><span>Rights</span><span>Publishing <small>A4.8</small></span>
+    </nav>
+    <div class="grid" id="overview">
+      <main>
+        <form [formGroup]="form" (ngSubmit)="save()">
+          <section class="card">
+            <header>
+              <div>
+                <p class="els-overline">Identity</p>
+                <h2>Core metadata</h2>
+              </div>
+              <span class="quiet">Work ID {{ item.id.slice(0, 8) }}…</span>
+            </header>
+            @if (saveError()) {
+              <div class="alert" role="alert">{{ saveError() }}</div>
+            }
+            @if (saved()) {
+              <div class="success" role="status">Changes saved successfully.</div>
+            }
+            <label for="slug">URL slug</label>
+            <div class="slug"><span>/library/</span><input id="slug" formControlName="slug" /></div>
+            @if (form.controls.slug.invalid && form.controls.slug.touched) {
+              <p class="field-error">Use lowercase letters, numbers and single hyphens.</p>
+            }
+          </section>
+          <section class="card">
+            <header>
+              <div>
+                <p class="els-overline">Introduction media</p>
+                <h2>YouTube video</h2>
+              </div>
+            </header>
+            <label for="video-url">YouTube URL</label
+            ><input
+              id="video-url"
+              type="url"
+              formControlName="introductionVideoUrl"
+              placeholder="https://www.youtube.com/watch?v=…"
+            />
+            <p class="hint">
+              Supported: youtube.com watch, Shorts, embed, and youtu.be URLs. Clear the field to
+              remove the video.
+            </p>
+            <label for="video-title">Accessible title</label
+            ><input
+              id="video-title"
+              formControlName="introductionVideoTitle"
+              maxlength="200"
+            /><label for="caption">Caption information</label
+            ><textarea
+              id="caption"
+              formControlName="introductionVideoCaptionInfo"
+              rows="4"
+              placeholder="Caption language, transcript availability, or accessibility notes."
+            ></textarea>
+          </section>
+          <div class="actions">
+            <span>{{ form.dirty ? 'Unsaved changes' : 'All changes saved' }}</span
+            ><button type="submit" [disabled]="saving() || !form.dirty">
+              {{ saving() ? 'Saving…' : 'Save metadata' }}
+            </button>
+          </div>
+        </form>
+      </main>
+      <aside>
+        <section class="card snapshot">
+          <p class="els-overline">Editorial snapshot</p>
+          <h2>Latest version</h2>
+          @if (latest(); as version) {
+            <strong>Version {{ version.version }}</strong>
+            <h3>{{ version.title }}</h3>
+            <p>{{ version.summary }}</p>
+            <dl>
+              <div>
+                <dt>Created</dt>
+                <dd>{{ date(version.createdAt) }}</dd>
+              </div>
+              <div>
+                <dt>Published version</dt>
+                <dd>{{ item.publishedVersionId === version.id ? 'Yes' : 'No' }}</dd>
+              </div>
+            </dl>
+          } @else {
+            <p>No Work version exists yet. Version editing arrives in A4.6.</p>
+          }
+        </section>
+        <section class="card">
+          <p class="els-overline">Ownership</p>
+          <h2>Assignments</h2>
+          <strong>{{ item.assignments.length }}</strong>
+          <p>
+            Admin assignment{{ item.assignments.length === 1 ? '' : 's' }} attached to this Work.
+          </p>
+        </section>
+        <section class="card">
+          <p class="els-overline">Publication</p>
+          <h2>{{ label(item.status) }}</h2>
+          <p>Published date: {{ date(item.publishedAt) }}</p>
+          <p class="hint">
+            Governance, rights preflight, scheduling, and publishing actions arrive in A4.8.
+          </p>
+        </section>
+      </aside>
+    </div>
+  }
+</section>

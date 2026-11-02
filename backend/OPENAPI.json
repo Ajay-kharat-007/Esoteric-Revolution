@@ -1,0 +1,3439 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "HealthController_liveness",
+        "parameters": [],
+        "responses": { "200": { "description": "The API process is alive." } },
+        "summary": "Liveness probe",
+        "tags": ["System"]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "HealthController_readiness",
+        "parameters": [],
+        "responses": { "200": { "description": "All required dependencies are ready." } },
+        "summary": "PostgreSQL and Redis readiness probe",
+        "tags": ["System"]
+      }
+    },
+    "/version": {
+      "get": {
+        "operationId": "HealthController_version",
+        "parameters": [],
+        "responses": { "200": { "description": "Safe version metadata." } },
+        "summary": "Build and environment metadata",
+        "tags": ["System"]
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RegisterDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/development/admin": {
+      "post": {
+        "operationId": "AuthController_developmentAdmin",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/DevelopmentAdminDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/verify-otp": {
+      "post": {
+        "operationId": "AuthController_verify",
+        "parameters": [
+          { "name": "user-agent", "required": true, "in": "header", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/VerifyOtpDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/resend-otp": {
+      "post": {
+        "operationId": "AuthController_resend",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ResendOtpDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [
+          { "name": "user-agent", "required": true, "in": "header", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/LoginDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/login/otp/request": {
+      "post": {
+        "operationId": "AuthController_otpRequest",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/OtpRequestDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/login/otp/verify": {
+      "post": {
+        "operationId": "AuthController_otpVerify",
+        "parameters": [
+          { "name": "user-agent", "required": true, "in": "header", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/VerifyOtpDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [
+          { "name": "user-agent", "required": true, "in": "header", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RefreshDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/forgot-password": {
+      "post": {
+        "operationId": "AuthController_forgot",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ForgotPasswordDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "operationId": "AuthController_reset",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ResetPasswordDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/logout-all": {
+      "post": {
+        "operationId": "AuthController_logoutAll",
+        "parameters": [],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/sessions": {
+      "get": {
+        "operationId": "AuthController_sessions",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/auth/sessions/{id}": {
+      "delete": {
+        "operationId": "AuthController_revoke",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Authentication"]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "operationId": "MeController_me",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Account"]
+      },
+      "patch": {
+        "operationId": "MeController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateMeDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Account"]
+      }
+    },
+    "/api/v1/me/preferences": {
+      "patch": {
+        "operationId": "MeController_prefs",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/PreferencesDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Account"]
+      }
+    },
+    "/api/v1/me/consents": {
+      "get": {
+        "operationId": "MeController_consents",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Account"]
+      }
+    },
+    "/api/v1/me/consents/{code}": {
+      "put": {
+        "operationId": "MeController_consent",
+        "parameters": [
+          { "name": "code", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ConsentDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Account"]
+      }
+    },
+    "/api/v1/me/deletion-request": {
+      "post": {
+        "operationId": "MeController_deletion",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/DeletionRequestDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Account"]
+      }
+    },
+    "/api/v1/catalogue/home": {
+      "get": {
+        "operationId": "CatalogueController_home",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/works": {
+      "get": {
+        "operationId": "CatalogueController_works",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": { "default": 1, "allOf": [{ "$ref": "#/components/schemas/Object" }] }
+          },
+          {
+            "name": "pageSize",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "maximum": 100,
+              "default": 20,
+              "allOf": [{ "$ref": "#/components/schemas/Object" }]
+            }
+          },
+          { "name": "category", "required": false, "in": "query", "schema": { "type": "string" } },
+          { "name": "topic", "required": false, "in": "query", "schema": { "type": "string" } },
+          { "name": "language", "required": false, "in": "query", "schema": { "type": "string" } },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": { "type": "string", "enum": ["newest", "title"] }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/works/{slug}": {
+      "get": {
+        "operationId": "CatalogueController_work",
+        "parameters": [
+          { "name": "slug", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/works/{slug}/preview": {
+      "get": {
+        "operationId": "CatalogueController_preview",
+        "parameters": [
+          { "name": "slug", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/works/{slug}/references": {
+      "get": {
+        "operationId": "CatalogueController_references",
+        "parameters": [
+          { "name": "slug", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/learning-paths": {
+      "get": {
+        "operationId": "CatalogueController_paths",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/learning-paths/{slug}": {
+      "get": {
+        "operationId": "CatalogueController_path",
+        "parameters": [
+          { "name": "slug", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/categories": {
+      "get": {
+        "operationId": "CatalogueController_categories",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/categories/{slug}": {
+      "get": {
+        "operationId": "CatalogueController_category",
+        "parameters": [
+          { "name": "slug", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/topics": {
+      "get": {
+        "operationId": "CatalogueController_topics",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/topics/{slug}": {
+      "get": {
+        "operationId": "CatalogueController_topic",
+        "parameters": [
+          { "name": "slug", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/people/{slug}": {
+      "get": {
+        "operationId": "CatalogueController_person",
+        "parameters": [
+          { "name": "slug", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/search": {
+      "get": {
+        "operationId": "CatalogueController_search",
+        "parameters": [
+          { "name": "q", "required": false, "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/insights": {
+      "get": {
+        "operationId": "CatalogueController_insights",
+        "parameters": [
+          { "name": "page", "required": true, "in": "query", "schema": { "type": "string" } },
+          { "name": "pageSize", "required": true, "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/insights/{slug}": {
+      "get": {
+        "operationId": "CatalogueController_insight",
+        "parameters": [
+          { "name": "slug", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Catalogue"]
+      }
+    },
+    "/api/v1/admin/categories": {
+      "get": {
+        "operationId": "CatalogueAdminController_categories",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Catalogue"]
+      },
+      "post": {
+        "operationId": "CatalogueAdminController_createCategory",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateCategoryDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Catalogue"]
+      }
+    },
+    "/api/v1/admin/categories/{id}": {
+      "patch": {
+        "operationId": "CatalogueAdminController_updateCategory",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateCategoryDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Catalogue"]
+      },
+      "delete": {
+        "operationId": "CatalogueAdminController_archiveCategory",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Catalogue"]
+      }
+    },
+    "/api/v1/admin/topics": {
+      "get": {
+        "operationId": "CatalogueAdminController_topics",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Catalogue"]
+      },
+      "post": {
+        "operationId": "CatalogueAdminController_createTopic",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateTopicDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Catalogue"]
+      }
+    },
+    "/api/v1/admin/topics/{id}": {
+      "patch": {
+        "operationId": "CatalogueAdminController_updateTopic",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateTopicDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Catalogue"]
+      },
+      "delete": {
+        "operationId": "CatalogueAdminController_archiveTopic",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Catalogue"]
+      }
+    },
+    "/api/v1/admin/contributors": {
+      "get": {
+        "operationId": "CatalogueAdminController_contributors",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Catalogue"]
+      },
+      "post": {
+        "operationId": "CatalogueAdminController_createContributor",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateContributorDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Catalogue"]
+      }
+    },
+    "/api/v1/admin/contributors/{id}": {
+      "patch": {
+        "operationId": "CatalogueAdminController_updateContributor",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateContributorDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Catalogue"]
+      },
+      "delete": {
+        "operationId": "CatalogueAdminController_archiveContributor",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Catalogue"]
+      }
+    },
+    "/api/v1/admin/learning-paths": {
+      "get": {
+        "operationId": "ContentDiscoveryAdminController_learningPaths",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Learning Paths & Insights"]
+      },
+      "post": {
+        "operationId": "ContentDiscoveryAdminController_createLearningPath",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateLearningPathDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Learning Paths & Insights"]
+      }
+    },
+    "/api/v1/admin/learning-paths/{id}": {
+      "get": {
+        "operationId": "ContentDiscoveryAdminController_learningPath",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Learning Paths & Insights"]
+      },
+      "patch": {
+        "operationId": "ContentDiscoveryAdminController_updateLearningPath",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateLearningPathDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Learning Paths & Insights"]
+      },
+      "delete": {
+        "operationId": "ContentDiscoveryAdminController_archiveLearningPath",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Learning Paths & Insights"]
+      }
+    },
+    "/api/v1/admin/insights": {
+      "get": {
+        "operationId": "ContentDiscoveryAdminController_insights",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Learning Paths & Insights"]
+      },
+      "post": {
+        "operationId": "ContentDiscoveryAdminController_createInsight",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateInsightDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Learning Paths & Insights"]
+      }
+    },
+    "/api/v1/admin/insights/{id}": {
+      "get": {
+        "operationId": "ContentDiscoveryAdminController_insight",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Learning Paths & Insights"]
+      },
+      "patch": {
+        "operationId": "ContentDiscoveryAdminController_updateInsight",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateInsightDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Learning Paths & Insights"]
+      },
+      "delete": {
+        "operationId": "ContentDiscoveryAdminController_archiveInsight",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Learning Paths & Insights"]
+      }
+    },
+    "/api/v1/admin/quizzes": {
+      "get": {
+        "operationId": "QuizAdminController_quizzes",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Quiz Management"]
+      },
+      "post": {
+        "operationId": "QuizAdminController_createQuiz",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateQuizDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Quiz Management"]
+      }
+    },
+    "/api/v1/admin/quizzes/{id}": {
+      "get": {
+        "operationId": "QuizAdminController_quiz",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Quiz Management"]
+      },
+      "patch": {
+        "operationId": "QuizAdminController_updateQuiz",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateQuizDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Quiz Management"]
+      },
+      "delete": {
+        "operationId": "QuizAdminController_archiveQuiz",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Quiz Management"]
+      }
+    },
+    "/api/v1/admin/quizzes/{id}/questions": {
+      "post": {
+        "operationId": "QuizAdminController_createQuestion",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateQuizQuestionDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Quiz Management"]
+      }
+    },
+    "/api/v1/admin/quiz-questions/{id}": {
+      "patch": {
+        "operationId": "QuizAdminController_updateQuestion",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateQuizQuestionDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Quiz Management"]
+      },
+      "delete": {
+        "operationId": "QuizAdminController_deleteQuestion",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Quiz Management"]
+      }
+    },
+    "/api/v1/me/notifications/{id}/read": {
+      "patch": {
+        "operationId": "NotificationManagementController_markRead",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learner Notifications"]
+      }
+    },
+    "/api/v1/me/notifications/read-all": {
+      "post": {
+        "operationId": "NotificationManagementController_markAllRead",
+        "parameters": [],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learner Notifications"]
+      }
+    },
+    "/api/v1/me/notifications/{id}": {
+      "delete": {
+        "operationId": "NotificationManagementController_remove",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learner Notifications"]
+      }
+    },
+    "/api/v1/admin/deletion-requests": {
+      "get": {
+        "operationId": "AccountDeletionAdminController_requests",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": ["REQUESTED", "PROCESSING", "COMPLETED", "REJECTED"],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Account Deletion"]
+      }
+    },
+    "/api/v1/admin/deletion-requests/{id}/complete": {
+      "post": {
+        "operationId": "AccountDeletionAdminController_complete",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Account Deletion"]
+      }
+    },
+    "/api/v1/admin/deletion-requests/{id}/reject": {
+      "post": {
+        "operationId": "AccountDeletionAdminController_reject",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RejectDeletionRequestDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Account Deletion"]
+      }
+    },
+    "/api/v1/settings": {
+      "get": {
+        "operationId": "PlatformSettingsController_publicSettings",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Platform Settings"]
+      }
+    },
+    "/api/v1/admin/settings": {
+      "get": {
+        "operationId": "PlatformSettingsController_adminSettings",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Platform Settings"]
+      },
+      "patch": {
+        "operationId": "PlatformSettingsController_update",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdatePlatformSettingsDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Platform Settings"]
+      }
+    },
+    "/api/v1/admin/works": {
+      "get": {
+        "operationId": "ContentController_list",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      },
+      "post": {
+        "operationId": "ContentController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateWorkDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      }
+    },
+    "/api/v1/admin/works/{id}": {
+      "get": {
+        "operationId": "ContentController_context",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      },
+      "patch": {
+        "operationId": "ContentController_update",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateWorkDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      }
+    },
+    "/api/v1/admin/works/{id}/versions": {
+      "post": {
+        "operationId": "ContentController_version",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateWorkVersionDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      }
+    },
+    "/api/v1/admin/works/{id}/modules": {
+      "post": {
+        "operationId": "ContentController_module",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateModuleDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      }
+    },
+    "/api/v1/admin/modules/{id}": {
+      "patch": {
+        "operationId": "ContentController_updateModule",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateModuleDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      }
+    },
+    "/api/v1/admin/modules/{id}/lessons": {
+      "post": {
+        "operationId": "ContentController_lesson",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateLessonDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      }
+    },
+    "/api/v1/admin/lessons/{id}": {
+      "patch": {
+        "operationId": "ContentController_updateLesson",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateLessonDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      },
+      "get": {
+        "operationId": "ContentController_lessonContext",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      }
+    },
+    "/api/v1/admin/lessons/{id}/versions": {
+      "post": {
+        "operationId": "ContentController_lessonVersion",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateLessonVersionDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      }
+    },
+    "/api/v1/admin/media/presign": {
+      "post": {
+        "operationId": "ContentController_presign",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/PresignMediaDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      }
+    },
+    "/api/v1/admin/media/{id}/complete": {
+      "post": {
+        "operationId": "ContentController_complete",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CompleteMediaDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      }
+    },
+    "/api/v1/admin/media/{id}/upload-placeholder": {
+      "put": {
+        "operationId": "ContentController_upload",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } },
+          { "name": "expires", "required": true, "in": "query", "schema": { "type": "string" } },
+          { "name": "signature", "required": true, "in": "query", "schema": { "type": "string" } },
+          {
+            "name": "x-checksum-sha256",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      }
+    },
+    "/api/v1/admin/media": {
+      "get": {
+        "operationId": "ContentController_media",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Content Authoring"]
+      }
+    },
+    "/api/v1/admin/sources": {
+      "post": {
+        "operationId": "EditorialController_source",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateSourceDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      },
+      "get": {
+        "operationId": "EditorialController_sources",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/sources/{id}": {
+      "patch": {
+        "operationId": "EditorialController_updateSource",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateSourceDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/claims": {
+      "post": {
+        "operationId": "EditorialController_claim",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateClaimDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      },
+      "get": {
+        "operationId": "EditorialController_claims",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/claims/{id}": {
+      "patch": {
+        "operationId": "EditorialController_review",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ReviewClaimDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/claims/{id}/sources": {
+      "post": {
+        "operationId": "EditorialController_link",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/LinkSourceDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/rights": {
+      "post": {
+        "operationId": "EditorialController_rightsCreate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateRightsDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      },
+      "get": {
+        "operationId": "EditorialController_rights",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/rights/{id}": {
+      "patch": {
+        "operationId": "EditorialController_rightsUpdate",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateRightsDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/rights/preflight/{workId}": {
+      "get": {
+        "operationId": "EditorialController_preflight",
+        "parameters": [
+          { "name": "workId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/workflows": {
+      "post": {
+        "operationId": "EditorialController_start",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/StartWorkflowDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      },
+      "get": {
+        "operationId": "EditorialController_workflows",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/workflows/{id}/actions": {
+      "post": {
+        "operationId": "EditorialController_action",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/WorkflowActionDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/works/{id}/submit-review": {
+      "post": {
+        "operationId": "EditorialController_submit",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/works/{id}/schedule": {
+      "post": {
+        "operationId": "EditorialController_schedule",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ScheduleDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/works/{id}/publish": {
+      "post": {
+        "operationId": "EditorialController_publish",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/works/{id}/archive": {
+      "post": {
+        "operationId": "EditorialController_archive",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ReasonDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/admin/works/{id}/corrections": {
+      "post": {
+        "operationId": "EditorialController_correction",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ReasonDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Editorial Governance"]
+      }
+    },
+    "/api/v1/products": {
+      "get": {
+        "operationId": "CommerceController_products",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/products/{id}": {
+      "get": {
+        "operationId": "CommerceController_product",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/products/by-work/{workId}": {
+      "get": {
+        "operationId": "CommerceController_byWork",
+        "parameters": [
+          { "name": "workId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/bundles": {
+      "get": {
+        "operationId": "CommerceController_bundles",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/bundles/{id}": {
+      "get": {
+        "operationId": "CommerceController_bundle",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/carts": {
+      "post": {
+        "operationId": "CommerceController_create",
+        "parameters": [],
+        "responses": { "201": { "description": "" } },
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/carts/{id}": {
+      "get": {
+        "operationId": "CommerceController_cart",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } },
+          {
+            "name": "x-cart-token",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/carts/{id}/items": {
+      "post": {
+        "operationId": "CommerceController_add",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } },
+          {
+            "name": "x-cart-token",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/AddCartItemDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/carts/{id}/items/{itemId}": {
+      "patch": {
+        "operationId": "CommerceController_quantity",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } },
+          { "name": "itemId", "required": true, "in": "path", "schema": { "type": "string" } },
+          {
+            "name": "x-cart-token",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateQuantityDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "tags": ["Commerce"]
+      },
+      "delete": {
+        "operationId": "CommerceController_remove",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } },
+          { "name": "itemId", "required": true, "in": "path", "schema": { "type": "string" } },
+          {
+            "name": "x-cart-token",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/carts/{id}/coupon": {
+      "post": {
+        "operationId": "CommerceController_coupon",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } },
+          {
+            "name": "x-cart-token",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CouponCodeDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Commerce"]
+      },
+      "delete": {
+        "operationId": "CommerceController_removeCoupon",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } },
+          {
+            "name": "x-cart-token",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/checkout/quote": {
+      "post": {
+        "operationId": "CommerceController_quote",
+        "parameters": [
+          {
+            "name": "x-cart-token",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CheckoutQuoteDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/carts/{id}/claim": {
+      "post": {
+        "operationId": "CommerceController_claim",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } },
+          {
+            "name": "x-cart-token",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/checkout/orders": {
+      "post": {
+        "operationId": "CommerceController_order",
+        "parameters": [
+          {
+            "name": "idempotency-key",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/orders/{id}": {
+      "get": {
+        "operationId": "CommerceController_getOrder",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/me/orders": {
+      "get": {
+        "operationId": "CommerceController_orders",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/orders/{id}/cancel": {
+      "post": {
+        "operationId": "CommerceController_cancel",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Commerce"]
+      }
+    },
+    "/api/v1/admin/orders": {
+      "get": {
+        "operationId": "AdminCommerceController_orders",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Commerce"]
+      }
+    },
+    "/api/v1/admin/orders/{id}": {
+      "get": {
+        "operationId": "AdminCommerceController_order",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Commerce"]
+      }
+    },
+    "/api/v1/admin/products": {
+      "get": {
+        "operationId": "AdminCommerceController_products",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Commerce"]
+      },
+      "post": {
+        "operationId": "AdminCommerceController_product",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateProductDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Commerce"]
+      }
+    },
+    "/api/v1/admin/products/{id}": {
+      "patch": {
+        "operationId": "AdminCommerceController_update",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateProductDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Commerce"]
+      }
+    },
+    "/api/v1/admin/products/{id}/prices": {
+      "post": {
+        "operationId": "AdminCommerceController_price",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreatePriceDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Commerce"]
+      }
+    },
+    "/api/v1/admin/bundles": {
+      "post": {
+        "operationId": "AdminCommerceController_bundle",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateBundleDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Commerce"]
+      }
+    },
+    "/api/v1/admin/coupons": {
+      "post": {
+        "operationId": "AdminCommerceController_coupon",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateCouponDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Commerce"]
+      }
+    },
+    "/api/v1/payments/payu/initiate": {
+      "post": {
+        "operationId": "PaymentController_initiate",
+        "parameters": [
+          {
+            "name": "idempotency-key",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/InitiatePaymentDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/payments/payu/return/success": {
+      "post": {
+        "operationId": "PaymentController_success",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ReturnDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/payments/payu/return/failure": {
+      "post": {
+        "operationId": "PaymentController_failure",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ReturnDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/payments/payu/webhook": {
+      "post": {
+        "operationId": "PaymentController_webhook",
+        "parameters": [
+          {
+            "name": "x-payu-signature",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/PayuWebhookDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/payments/payu/refund-webhook": {
+      "post": {
+        "operationId": "PaymentController_refundWebhook",
+        "parameters": [
+          {
+            "name": "x-payu-signature",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RefundWebhookDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/payments/{id}/status": {
+      "get": {
+        "operationId": "PaymentController_status",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/payments/{id}/verify": {
+      "post": {
+        "operationId": "PaymentController_verify",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/orders/{id}/refund-requests": {
+      "post": {
+        "operationId": "PaymentController_refund",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RefundRequestDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/me/refunds": {
+      "get": {
+        "operationId": "PaymentController_refunds",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/admin/refunds": {
+      "get": {
+        "operationId": "PaymentController_adminRefunds",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/admin/refunds/{id}": {
+      "get": {
+        "operationId": "PaymentController_adminRefund",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/admin/refunds/{id}/approve": {
+      "post": {
+        "operationId": "PaymentController_approve",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RefundDecisionDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/admin/refunds/{id}/reject": {
+      "post": {
+        "operationId": "PaymentController_reject",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RefundDecisionDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/orders/{id}/invoice": {
+      "get": {
+        "operationId": "PaymentController_invoice",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Payments"]
+      }
+    },
+    "/api/v1/me/entitlements": {
+      "get": {
+        "operationId": "LearningController_entitlements",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learning Delivery"]
+      }
+    },
+    "/api/v1/access/works/{workId}": {
+      "get": {
+        "operationId": "LearningController_access",
+        "parameters": [
+          { "name": "workId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learning Delivery"]
+      }
+    },
+    "/api/v1/me/library": {
+      "get": {
+        "operationId": "LearningController_library",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learning Delivery"]
+      }
+    },
+    "/api/v1/learn/works/{workId}": {
+      "get": {
+        "operationId": "LearningController_work",
+        "parameters": [
+          { "name": "workId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learning Delivery"]
+      }
+    },
+    "/api/v1/learn/lessons/{lessonId}": {
+      "get": {
+        "operationId": "LearningController_lesson",
+        "parameters": [
+          { "name": "lessonId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learning Delivery"]
+      }
+    },
+    "/api/v1/learn/lessons/{lessonId}/media": {
+      "get": {
+        "operationId": "LearningController_media",
+        "parameters": [
+          { "name": "lessonId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learning Delivery"]
+      }
+    },
+    "/api/v1/learn/lessons/{lessonId}/transcript": {
+      "get": {
+        "operationId": "LearningController_transcript",
+        "parameters": [
+          { "name": "lessonId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learning Delivery"]
+      }
+    },
+    "/api/v1/learn/lessons/{lessonId}/progress": {
+      "put": {
+        "operationId": "LearningController_progress",
+        "parameters": [
+          { "name": "lessonId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ProgressDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learning Delivery"]
+      }
+    },
+    "/api/v1/learn/lessons/{lessonId}/complete": {
+      "post": {
+        "operationId": "LearningController_complete",
+        "parameters": [
+          { "name": "lessonId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learning Delivery"]
+      }
+    },
+    "/api/v1/me/progress": {
+      "get": {
+        "operationId": "LearningController_summary",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learning Delivery"]
+      }
+    },
+    "/api/v1/me/progress/{workId}": {
+      "get": {
+        "operationId": "LearningController_workProgress",
+        "parameters": [
+          { "name": "workId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Learning Delivery"]
+      }
+    },
+    "/api/v1/admin/entitlements": {
+      "post": {
+        "operationId": "EntitlementAdminController_grant",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/GrantEntitlementDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Entitlements"]
+      }
+    },
+    "/api/v1/admin/entitlements/{id}/revoke": {
+      "post": {
+        "operationId": "EntitlementAdminController_revoke",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RevokeEntitlementDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Entitlements"]
+      }
+    },
+    "/internal/entitlements/reconcile": {
+      "post": {
+        "operationId": "EntitlementAdminController_reconcile",
+        "parameters": [],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Entitlements"]
+      }
+    },
+    "/api/v1/me/bookmarks": {
+      "get": {
+        "operationId": "KnowledgeController_bookmarks",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/lessons/{lessonId}/bookmarks": {
+      "post": {
+        "operationId": "KnowledgeController_bookmark",
+        "parameters": [
+          { "name": "lessonId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateBookmarkDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/bookmarks/{id}": {
+      "delete": {
+        "operationId": "KnowledgeController_deleteBookmark",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/me/highlights": {
+      "get": {
+        "operationId": "KnowledgeController_highlights",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/lessons/{lessonId}/highlights": {
+      "post": {
+        "operationId": "KnowledgeController_highlight",
+        "parameters": [
+          { "name": "lessonId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateHighlightDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/highlights/{id}": {
+      "patch": {
+        "operationId": "KnowledgeController_updateHighlight",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateHighlightDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      },
+      "delete": {
+        "operationId": "KnowledgeController_deleteHighlight",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/me/notes": {
+      "get": {
+        "operationId": "KnowledgeController_notes",
+        "parameters": [
+          { "name": "q", "required": true, "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/lessons/{lessonId}/notes": {
+      "post": {
+        "operationId": "KnowledgeController_note",
+        "parameters": [
+          { "name": "lessonId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateNoteDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/notes/{id}": {
+      "patch": {
+        "operationId": "KnowledgeController_updateNote",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/UpdateNoteDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      },
+      "delete": {
+        "operationId": "KnowledgeController_deleteNote",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/me/reflections": {
+      "get": {
+        "operationId": "KnowledgeController_reflections",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/lessons/{lessonId}/reflections": {
+      "post": {
+        "operationId": "KnowledgeController_reflection",
+        "parameters": [
+          { "name": "lessonId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ReflectionDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/reflections/{id}": {
+      "patch": {
+        "operationId": "KnowledgeController_updateReflection",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ReflectionDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      },
+      "delete": {
+        "operationId": "KnowledgeController_deleteReflection",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/quizzes/{quizId}": {
+      "get": {
+        "operationId": "KnowledgeController_quiz",
+        "parameters": [
+          { "name": "quizId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/quizzes/{quizId}/attempts": {
+      "post": {
+        "operationId": "KnowledgeController_attempt",
+        "parameters": [
+          { "name": "quizId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/quiz-attempts/{attemptId}/answers": {
+      "post": {
+        "operationId": "KnowledgeController_answer",
+        "parameters": [
+          { "name": "attemptId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/SaveAnswerDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/quiz-attempts/{attemptId}/submit": {
+      "post": {
+        "operationId": "KnowledgeController_submit",
+        "parameters": [
+          { "name": "attemptId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/quiz-attempts/{attemptId}/result": {
+      "get": {
+        "operationId": "KnowledgeController_result",
+        "parameters": [
+          { "name": "attemptId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/works/{workId}/rating": {
+      "put": {
+        "operationId": "KnowledgeController_rating",
+        "parameters": [
+          { "name": "workId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/RatingDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      },
+      "delete": {
+        "operationId": "KnowledgeController_deleteRating",
+        "parameters": [
+          { "name": "workId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/works/{workId}/ratings": {
+      "get": {
+        "operationId": "KnowledgeController_ratings",
+        "parameters": [
+          { "name": "workId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Personal Knowledge & Assessment"]
+      }
+    },
+    "/api/v1/support-cases": {
+      "post": {
+        "operationId": "OperationsController_support",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateSupportCaseDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Operations"]
+      }
+    },
+    "/api/v1/me/support-cases": {
+      "get": {
+        "operationId": "OperationsController_myCases",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Operations"]
+      }
+    },
+    "/api/v1/content-reports": {
+      "post": {
+        "operationId": "OperationsController_report",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateContentReportDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Operations"]
+      }
+    },
+    "/api/v1/referrals/claim": {
+      "post": {
+        "operationId": "OperationsController_referral",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ClaimReferralDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Operations"]
+      }
+    },
+    "/api/v1/me/referral": {
+      "get": {
+        "operationId": "OperationsController_referralStatus",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Operations"]
+      }
+    },
+    "/api/v1/me/notifications": {
+      "get": {
+        "operationId": "OperationsController_notifications",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Operations"]
+      }
+    },
+    "/api/v1/admin/dashboard": {
+      "get": {
+        "operationId": "AdminOperationsController_dashboard",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/api/v1/admin/users": {
+      "get": {
+        "operationId": "AdminOperationsController_users",
+        "parameters": [
+          { "name": "q", "required": true, "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/api/v1/admin/users/{id}": {
+      "get": {
+        "operationId": "AdminOperationsController_user",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/api/v1/admin/users/{id}/block": {
+      "post": {
+        "operationId": "AdminOperationsController_block",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ReasonDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/api/v1/admin/users/{id}/unblock": {
+      "post": {
+        "operationId": "AdminOperationsController_unblock",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/ReasonDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/api/v1/admin/support-cases": {
+      "get": {
+        "operationId": "AdminOperationsController_cases",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": { "enum": ["OPEN", "ASSIGNED", "RESOLVED", "CLOSED"], "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/api/v1/admin/support-cases/{id}": {
+      "patch": {
+        "operationId": "AdminOperationsController_updateCase",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateSupportCaseDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/api/v1/admin/content-reports": {
+      "get": {
+        "operationId": "AdminOperationsController_reports",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": { "enum": ["OPEN", "RESOLVED", "DISMISSED"], "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/api/v1/admin/content-reports/{id}/resolve": {
+      "post": {
+        "operationId": "AdminOperationsController_resolve",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/ResolveContentReportDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/api/v1/admin/notifications": {
+      "get": {
+        "operationId": "AdminOperationsController_notifications",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      },
+      "post": {
+        "operationId": "AdminOperationsController_notification",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateNotificationDto" }
+            }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/api/v1/admin/campaigns": {
+      "post": {
+        "operationId": "AdminOperationsController_campaign",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/CreateCampaignDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      },
+      "get": {
+        "operationId": "AdminOperationsController_campaigns",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Operations"]
+      }
+    },
+    "/api/v1/admin/reports/overview": {
+      "get": {
+        "operationId": "GovernanceController_overview",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Governance & Reporting"]
+      }
+    },
+    "/api/v1/admin/reports/commerce": {
+      "get": {
+        "operationId": "GovernanceController_commerce",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Governance & Reporting"]
+      }
+    },
+    "/api/v1/admin/reports/learning": {
+      "get": {
+        "operationId": "GovernanceController_learning",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Governance & Reporting"]
+      }
+    },
+    "/api/v1/admin/audit-events": {
+      "get": {
+        "operationId": "GovernanceController_audit",
+        "parameters": [
+          { "name": "action", "required": true, "in": "query", "schema": { "type": "string" } },
+          {
+            "name": "resourceType",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "string" }
+          },
+          { "name": "resourceId", "required": true, "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Governance & Reporting"]
+      }
+    },
+    "/api/v1/admin/roles": {
+      "get": {
+        "operationId": "GovernanceController_roles",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Governance & Reporting"]
+      }
+    },
+    "/api/v1/admin/users/{id}/roles": {
+      "put": {
+        "operationId": "GovernanceController_assign",
+        "parameters": [
+          { "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/AssignRolesDto" } }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Governance & Reporting"]
+      }
+    },
+    "/api/v1/admin/feature-flags": {
+      "get": {
+        "operationId": "GovernanceController_flags",
+        "parameters": [],
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Governance & Reporting"]
+      }
+    },
+    "/api/v1/admin/feature-flags/{key}": {
+      "patch": {
+        "operationId": "GovernanceController_updateFlag",
+        "parameters": [
+          { "name": "key", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateFeatureFlagDto" }
+            }
+          }
+        },
+        "responses": { "200": { "description": "" } },
+        "security": [{ "bearer": [] }],
+        "tags": ["Admin Governance & Reporting"]
+      }
+    },
+    "/internal/metrics": {
+      "get": {
+        "operationId": "InternalController_metrics",
+        "parameters": [
+          {
+            "name": "x-internal-key",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } },
+        "tags": ["Internal Operations"]
+      }
+    },
+    "/internal/jobs/retry/{jobId}": {
+      "post": {
+        "operationId": "InternalController_retry",
+        "parameters": [
+          {
+            "name": "x-internal-key",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          { "name": "jobId", "required": true, "in": "path", "schema": { "type": "string" } }
+        ],
+        "responses": { "201": { "description": "" } },
+        "tags": ["Internal Operations"]
+      }
+    },
+    "/internal/outbox/process": {
+      "post": {
+        "operationId": "InternalController_process",
+        "parameters": [
+          {
+            "name": "x-internal-key",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": { "201": { "description": "" } },
+        "tags": ["Internal Operations"]
+      }
+    },
+    "/webhooks/storage": {
+      "post": {
+        "operationId": "ProviderWebhookController_storage",
+        "parameters": [
+          {
+            "name": "x-webhook-signature",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/StorageWebhookDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Provider Webhooks"]
+      }
+    },
+    "/webhooks/email": {
+      "post": {
+        "operationId": "ProviderWebhookController_email",
+        "parameters": [
+          {
+            "name": "x-webhook-signature",
+            "required": true,
+            "in": "header",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": { "schema": { "$ref": "#/components/schemas/EmailWebhookDto" } }
+          }
+        },
+        "responses": { "201": { "description": "" } },
+        "tags": ["Provider Webhooks"]
+      }
+    }
+  },
+  "info": {
+    "title": "Esoteric Library API",
+    "description": "Versioned REST API for the Esoteric Library platform.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [{ "name": "System", "description": "" }],
+  "servers": [],
+  "components": {
+    "securitySchemes": { "bearer": { "scheme": "bearer", "bearerFormat": "JWT", "type": "http" } },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "password": { "type": "string" },
+          "displayName": { "type": "string" }
+        },
+        "required": ["password"]
+      },
+      "DevelopmentAdminDto": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" },
+          "password": { "type": "string" },
+          "displayName": { "type": "string" }
+        },
+        "required": ["email", "password", "displayName"]
+      },
+      "VerifyOtpDto": {
+        "type": "object",
+        "properties": { "challengeId": { "type": "string" }, "code": { "type": "string" } },
+        "required": ["challengeId", "code"]
+      },
+      "ResendOtpDto": {
+        "type": "object",
+        "properties": { "challengeId": { "type": "string" } },
+        "required": ["challengeId"]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": { "identifier": { "type": "string" }, "password": { "type": "string" } },
+        "required": ["identifier", "password"]
+      },
+      "OtpRequestDto": {
+        "type": "object",
+        "properties": { "identifier": { "type": "string" } },
+        "required": ["identifier"]
+      },
+      "RefreshDto": {
+        "type": "object",
+        "properties": { "refreshToken": { "type": "string" } },
+        "required": ["refreshToken"]
+      },
+      "ForgotPasswordDto": {
+        "type": "object",
+        "properties": { "identifier": { "type": "string" } },
+        "required": ["identifier"]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "token": { "type": "string" },
+          "password": { "type": "string" },
+          "revokeAllSessions": { "type": "boolean" }
+        },
+        "required": ["token", "password"]
+      },
+      "UpdateMeDto": {
+        "type": "object",
+        "properties": {
+          "displayName": { "type": "string" },
+          "language": { "type": "string" },
+          "timezone": { "type": "string" }
+        }
+      },
+      "PreferencesDto": {
+        "type": "object",
+        "properties": { "preferences": { "type": "object" } },
+        "required": ["preferences"]
+      },
+      "ConsentDto": {
+        "type": "object",
+        "properties": { "granted": { "type": "boolean" } },
+        "required": ["granted"]
+      },
+      "DeletionRequestDto": { "type": "object", "properties": { "reason": { "type": "string" } } },
+      "Object": { "type": "object", "properties": {} },
+      "CreateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "description": { "type": "string" },
+          "parentId": { "type": "string" },
+          "position": { "type": "number", "default": 0 },
+          "isPublished": { "type": "boolean", "default": false }
+        },
+        "required": ["name", "slug"]
+      },
+      "UpdateCategoryDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "description": { "type": "string" },
+          "parentId": { "type": "string" },
+          "position": { "type": "number" },
+          "isPublished": { "type": "boolean" }
+        }
+      },
+      "CreateTopicDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "description": { "type": "string" },
+          "isPublished": { "type": "boolean", "default": false }
+        },
+        "required": ["name", "slug"]
+      },
+      "UpdateTopicDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "description": { "type": "string" },
+          "isPublished": { "type": "boolean" }
+        }
+      },
+      "CreateContributorDto": {
+        "type": "object",
+        "properties": {
+          "displayName": { "type": "string" },
+          "slug": { "type": "string" },
+          "biography": { "type": "string" },
+          "imageUrl": { "type": "string" },
+          "isPublic": { "type": "boolean", "default": false }
+        },
+        "required": ["displayName", "slug"]
+      },
+      "UpdateContributorDto": {
+        "type": "object",
+        "properties": {
+          "displayName": { "type": "string" },
+          "slug": { "type": "string" },
+          "biography": { "type": "string" },
+          "imageUrl": { "type": "string" },
+          "isPublic": { "type": "boolean" }
+        }
+      },
+      "LearningPathItemDto": {
+        "type": "object",
+        "properties": { "workId": { "type": "string" }, "position": { "type": "number" } },
+        "required": ["workId", "position"]
+      },
+      "CreateLearningPathDto": {
+        "type": "object",
+        "properties": {
+          "slug": { "type": "string" },
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "description": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["DRAFT", "IN_REVIEW", "SCHEDULED", "PUBLISHED", "ARCHIVED"],
+            "default": "DRAFT"
+          },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/LearningPathItemDto" }
+          }
+        },
+        "required": ["slug", "title", "summary"]
+      },
+      "UpdateLearningPathDto": {
+        "type": "object",
+        "properties": {
+          "slug": { "type": "string" },
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "description": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["DRAFT", "IN_REVIEW", "SCHEDULED", "PUBLISHED", "ARCHIVED"]
+          },
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/LearningPathItemDto" }
+          }
+        }
+      },
+      "CreateInsightDto": {
+        "type": "object",
+        "properties": {
+          "slug": { "type": "string" },
+          "title": { "type": "string" },
+          "excerpt": { "type": "string" },
+          "body": { "type": "object" },
+          "status": {
+            "type": "string",
+            "enum": ["DRAFT", "IN_REVIEW", "SCHEDULED", "PUBLISHED", "ARCHIVED"],
+            "default": "DRAFT"
+          }
+        },
+        "required": ["slug", "title", "excerpt", "body"]
+      },
+      "UpdateInsightDto": {
+        "type": "object",
+        "properties": {
+          "slug": { "type": "string" },
+          "title": { "type": "string" },
+          "excerpt": { "type": "string" },
+          "body": { "type": "object" },
+          "status": {
+            "type": "string",
+            "enum": ["DRAFT", "IN_REVIEW", "SCHEDULED", "PUBLISHED", "ARCHIVED"]
+          }
+        }
+      },
+      "CreateQuizDto": {
+        "type": "object",
+        "properties": {
+          "workId": { "type": "string" },
+          "lessonId": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "passingScore": { "type": "number", "default": 70 },
+          "isActive": { "type": "boolean", "default": true }
+        },
+        "required": ["workId", "title"]
+      },
+      "UpdateQuizDto": {
+        "type": "object",
+        "properties": {
+          "workId": { "type": "string" },
+          "lessonId": { "type": "string" },
+          "title": { "type": "string" },
+          "description": { "type": "string" },
+          "passingScore": { "type": "number" },
+          "isActive": { "type": "boolean" }
+        }
+      },
+      "QuizOptionInputDto": {
+        "type": "object",
+        "properties": {
+          "text": { "type": "string" },
+          "isCorrect": { "type": "boolean", "default": false },
+          "position": { "type": "number" }
+        },
+        "required": ["text", "position"]
+      },
+      "CreateQuizQuestionDto": {
+        "type": "object",
+        "properties": {
+          "prompt": { "type": "string" },
+          "explanation": { "type": "string" },
+          "position": { "type": "number" },
+          "options": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/QuizOptionInputDto" }
+          }
+        },
+        "required": ["prompt", "position", "options"]
+      },
+      "UpdateQuizQuestionDto": {
+        "type": "object",
+        "properties": {
+          "prompt": { "type": "string" },
+          "explanation": { "type": "string" },
+          "position": { "type": "number" },
+          "options": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/QuizOptionInputDto" }
+          }
+        }
+      },
+      "RejectDeletionRequestDto": {
+        "type": "object",
+        "properties": { "reason": { "type": "string" } },
+        "required": ["reason"]
+      },
+      "PlatformSettingEntryDto": {
+        "type": "object",
+        "properties": {
+          "key": { "type": "string" },
+          "value": { "type": "object" },
+          "isSecret": { "type": "boolean", "default": false }
+        },
+        "required": ["key", "value"]
+      },
+      "UpdatePlatformSettingsDto": {
+        "type": "object",
+        "properties": {
+          "settings": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/PlatformSettingEntryDto" }
+          }
+        },
+        "required": ["settings"]
+      },
+      "CreateWorkDto": {
+        "type": "object",
+        "properties": {
+          "slug": { "type": "string" },
+          "languageCode": { "type": "string" },
+          "title": { "type": "string" },
+          "summary": { "type": "string" }
+        },
+        "required": ["slug", "languageCode"]
+      },
+      "UpdateWorkDto": {
+        "type": "object",
+        "properties": {
+          "introductionVideoUrl": { "type": "string" },
+          "introductionVideoTitle": { "type": "string" },
+          "introductionVideoCaptionInfo": { "type": "string" },
+          "slug": { "type": "string" }
+        }
+      },
+      "CreateWorkVersionDto": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "subtitle": { "type": "string" },
+          "description": { "type": "string" },
+          "content": { "type": "object" },
+          "preview": { "type": "object" }
+        },
+        "required": ["title", "summary"]
+      },
+      "CreateModuleDto": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "position": { "type": "number" }
+        },
+        "required": ["title", "position"]
+      },
+      "UpdateModuleDto": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "position": { "type": "number" }
+        }
+      },
+      "CreateLessonDto": {
+        "type": "object",
+        "properties": {
+          "slug": { "type": "string" },
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "position": { "type": "number" }
+        },
+        "required": ["slug", "title", "position"]
+      },
+      "UpdateLessonDto": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "summary": { "type": "string" },
+          "position": { "type": "number" }
+        }
+      },
+      "CreateLessonVersionDto": {
+        "type": "object",
+        "properties": {
+          "content": { "type": "object" },
+          "transcript": { "type": "string" },
+          "durationSeconds": { "type": "number" }
+        },
+        "required": ["content"]
+      },
+      "PresignMediaDto": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "originalFilename": { "type": "string" },
+          "mimeType": { "type": "string" },
+          "sizeBytes": { "type": "number" },
+          "checksumSha256": { "type": "string" },
+          "lessonVersionId": { "type": "string" }
+        },
+        "required": ["type", "originalFilename", "mimeType", "sizeBytes", "checksumSha256"]
+      },
+      "CompleteMediaDto": {
+        "type": "object",
+        "properties": { "checksumSha256": { "type": "string" }, "metadata": { "type": "object" } },
+        "required": ["checksumSha256"]
+      },
+      "CreateSourceDto": { "type": "object", "properties": {} },
+      "UpdateSourceDto": { "type": "object", "properties": {} },
+      "CreateClaimDto": { "type": "object", "properties": {} },
+      "ReviewClaimDto": { "type": "object", "properties": {} },
+      "LinkSourceDto": { "type": "object", "properties": {} },
+      "CreateRightsDto": { "type": "object", "properties": {} },
+      "UpdateRightsDto": { "type": "object", "properties": {} },
+      "StartWorkflowDto": { "type": "object", "properties": {} },
+      "WorkflowActionDto": { "type": "object", "properties": {} },
+      "ScheduleDto": { "type": "object", "properties": {} },
+      "ReasonDto": {
+        "type": "object",
+        "properties": { "reason": { "type": "string" } },
+        "required": ["reason"]
+      },
+      "AddCartItemDto": { "type": "object", "properties": {} },
+      "UpdateQuantityDto": { "type": "object", "properties": {} },
+      "CouponCodeDto": { "type": "object", "properties": {} },
+      "CheckoutQuoteDto": {
+        "type": "object",
+        "properties": { "cartId": { "type": "string" } },
+        "required": ["cartId"]
+      },
+      "CreateProductDto": { "type": "object", "properties": {} },
+      "UpdateProductDto": { "type": "object", "properties": {} },
+      "CreatePriceDto": { "type": "object", "properties": {} },
+      "CreateBundleDto": { "type": "object", "properties": {} },
+      "CreateCouponDto": { "type": "object", "properties": {} },
+      "InitiatePaymentDto": { "type": "object", "properties": {} },
+      "ReturnDto": { "type": "object", "properties": {} },
+      "PayuWebhookDto": { "type": "object", "properties": {} },
+      "RefundWebhookDto": { "type": "object", "properties": {} },
+      "RefundRequestDto": { "type": "object", "properties": {} },
+      "RefundDecisionDto": { "type": "object", "properties": {} },
+      "ProgressDto": { "type": "object", "properties": {} },
+      "GrantEntitlementDto": { "type": "object", "properties": {} },
+      "RevokeEntitlementDto": { "type": "object", "properties": {} },
+      "CreateBookmarkDto": {
+        "type": "object",
+        "properties": { "label": { "type": "string" }, "position": { "type": "object" } }
+      },
+      "CreateHighlightDto": {
+        "type": "object",
+        "properties": {
+          "quote": { "type": "string" },
+          "range": { "type": "object" },
+          "color": { "type": "string" }
+        },
+        "required": ["quote", "range"]
+      },
+      "UpdateHighlightDto": {
+        "type": "object",
+        "properties": { "range": { "type": "object" }, "color": { "type": "string" } }
+      },
+      "CreateNoteDto": {
+        "type": "object",
+        "properties": { "title": { "type": "string" }, "body": { "type": "string" } },
+        "required": ["body"]
+      },
+      "UpdateNoteDto": {
+        "type": "object",
+        "properties": { "title": { "type": "string" }, "body": { "type": "string" } }
+      },
+      "ReflectionDto": {
+        "type": "object",
+        "properties": { "title": { "type": "string" }, "body": { "type": "string" } },
+        "required": ["body"]
+      },
+      "SaveAnswerDto": {
+        "type": "object",
+        "properties": { "questionId": { "type": "string" }, "optionId": { "type": "string" } },
+        "required": ["questionId", "optionId"]
+      },
+      "RatingDto": {
+        "type": "object",
+        "properties": { "value": { "type": "number" }, "review": { "type": "string" } },
+        "required": ["value"]
+      },
+      "CreateSupportCaseDto": {
+        "type": "object",
+        "properties": { "subject": { "type": "string" }, "message": { "type": "string" } },
+        "required": ["subject", "message"]
+      },
+      "CreateContentReportDto": {
+        "type": "object",
+        "properties": {
+          "workId": { "type": "string" },
+          "lessonId": { "type": "string" },
+          "reason": { "type": "string" },
+          "details": { "type": "string" }
+        },
+        "required": ["reason"]
+      },
+      "ClaimReferralDto": {
+        "type": "object",
+        "properties": { "code": { "type": "string" } },
+        "required": ["code"]
+      },
+      "UpdateSupportCaseDto": {
+        "type": "object",
+        "properties": {
+          "assigneeId": { "type": "string" },
+          "status": { "type": "string" },
+          "resolution": { "type": "string" }
+        }
+      },
+      "ResolveContentReportDto": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string" },
+          "resolution": { "type": "string" },
+          "correctionId": { "type": "string" }
+        },
+        "required": ["status", "resolution"]
+      },
+      "CreateNotificationDto": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "body": { "type": "string" },
+          "audience": { "type": "object" },
+          "scheduledAt": { "type": "string" }
+        },
+        "required": ["title", "body", "audience"]
+      },
+      "CreateCampaignDto": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "channel": { "type": "string" },
+          "audience": { "type": "object" },
+          "content": { "type": "object" },
+          "scheduledAt": { "type": "string" }
+        },
+        "required": ["name", "channel", "audience", "content"]
+      },
+      "AssignRolesDto": {
+        "type": "object",
+        "properties": {
+          "roleCodes": { "type": "array", "items": { "type": "string" } },
+          "reason": { "type": "string" }
+        },
+        "required": ["roleCodes", "reason"]
+      },
+      "UpdateFeatureFlagDto": {
+        "type": "object",
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "configuration": { "type": "object" },
+          "reason": { "type": "string" }
+        },
+        "required": ["reason"]
+      },
+      "StorageWebhookDto": { "type": "object", "properties": {} },
+      "EmailWebhookDto": { "type": "object", "properties": {} }
+    }
+  }
+}

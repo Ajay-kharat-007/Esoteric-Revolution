@@ -1,0 +1,30 @@
+main {
+  padding-block: 3rem;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+header p {
+  color: var(--els-color-ink-soft);
+}
+button {
+  min-height: 2.75rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--els-color-rust);
+  border-radius: var(--els-radius-sm);
+  background: var(--els-color-rust);
+  color: var(--els-color-paper-light);
+  font-weight: 700;
+}
+section {
+  padding: 1.5rem;
+}
+@media (max-width: 40rem) {
+  header {
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,24 @@
+main {
+  padding-block: clamp(1.5rem, 4vw, 3rem);
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+header p {
+  color: var(--els-color-ink-soft);
+}
+header button {
+  display: none;
+}
+section {
+  padding: 1.5rem;
+}
+@media (max-width: 40rem) {
+  header {
+    flex-direction: column;
+  }
+}
